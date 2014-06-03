@@ -10,7 +10,6 @@ Usage:
 import unittest, sys
 
 sys.path.append("../src")
-from steamtests import *
 from mod_manager_tests import *
 
 

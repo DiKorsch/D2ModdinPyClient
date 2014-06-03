@@ -4,9 +4,18 @@ Created on 01.06.2014
 @author: Schleppi
 '''
 from PyQt4.Qt import QSettings
-from os.path import join, exists, normpath, isdir, isfile
+from os.path import join, exists, normpath, isdir, isfile, basename
 from d2mp import STEAM_EXE, DOTA_EXE, log
-import os
+import os, re
+from shutil import rmtree, copytree
+
+
+def ensure_exist(func):
+    def wrapper(*args, **kw):
+        res = func(*args, **kw)
+        if not exists(res): os.makedirs(res)
+        return res
+    return wrapper
 
 class ModManager(object):
     
@@ -43,22 +52,17 @@ class ModManager(object):
             if exists("/".join(dota_loc + [p])): return "/".join(dota_loc + [p])
         return None
     
+    @ensure_exist
     def _mod_path(self):
         return join(self._addons_path(), "d2moddin")
     
+    @ensure_exist    
     def _d2mp_path(self):
         return join(self._dota_path(), normpath("dota/d2moddin"))
     
+    @ensure_exist
     def _addons_path(self):
         return join(self._dota_path(), normpath("dota/addons"))
-
-    def _delete_all(self, path):
-        if not exists(path): return
-        for f in os.listdir(path):
-            cur_path = join(path, f)
-            if isfile(cur_path): os.remove(cur_path)
-            else: self._delete_all(cur_path)
-        os.rmdir(path)
 
     def find_steam_exe(self):
         return join(self._steam_path(), STEAM_EXE)
@@ -80,47 +84,66 @@ class ModManager(object):
         pass
 
     def delete_mod(self, mod_name):
-        pass
+        mod_path = join(self._d2mp_path(), mod_name)
+        if not exists(mod_path): 
+            log.ERROR("wanted to delete not existing mod: %s" %(mod_name))
+            return
+        log.DEBUG("deleting mod %s" %(mod_name))
+        rmtree(mod_path)
     
     def delete_mods(self):
-        pass
-    
-    def _copy(self, from_dir, to_dir):
-        pass
+        rmtree(self._d2mp_path())
+        rmtree(self._mod_path())
+        log.DEBUG("deleted all present mods")
     
     def set_mod(self, mod_name):
         active_mod = self.get_active_mod()
         if not(active_mod is None or active_mod != mod_name): return
-        self._delete_all(self._mod_path())
-        log.DEBUG("Setting active mod to %s."%mod_name);
-        self._copy(join(self._d2mp_path(), mod_name.split("=")[0]), self._mod_path())
+        log.DEBUG("Setting active mod to %s." %mod_name);
+        
+        rmtree(self._mod_path())
+        assert exists(self._d2mp_path())
+        from_dir = join(self._d2mp_path(), mod_name.split("=")[0])
+        to_dir = join(self._mod_path(), mod_name.split("=")[0])
+        assert exists(from_dir)
+
+        copytree(from_dir, to_dir)
+        
         f = open(self._mod_name_file(), "w")
         f.write(mod_name)
         f.close()
     
+    def _extract_mod_version(self, addon_dir):
+        
+        log.CRITICAL("TODO: extract mod version")
+        return "0.0.0"
+#         D2MP.cs: 176
+#         log.DEBUG("Found mod %s, detecting version..." %(addon_dir))
+#         file_path = join(self._d2mp_path(), join(addon_dir, "addoninfo.txt"))
+#         if not isfile(file_path): log.DEBUG("no addoninfo file found: %s" %(file_path))
+#         info_file = open(file_path, "r")
+#         info_file_content = info_file.read()
+#         info_file.close()
+#         result = re.match("(addonversion)(\s+)(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)", info_file_content)
+    
     def _mod_names(self):
         if not self._cache.get('mod_names'):
             names = []
-            for f in os.listdir(self._d2mp_path()):
-                if not isdir(f): continue
-                log.DEBUG("Found mod %s, detecting version..." %(f))
-                info_file_path = join(self._d2mp_path(), join(f, "addoninfo.txt"))
-                if not isfile(info_file_path): log.DEBUG("no addoninfo file found: %s" %(info_file_path))
-                    
-                info_file = open(info_file_path, "r")
-                info_file_content = info_file.read()
-                info_file.close()
-            
+            p = self._d2mp_path()
+            for addon_dir in [join(p, f) for f in os.listdir(p)]:
+                if not isdir(addon_dir): continue
+                mod_version = self._extract_mod_version(addon_dir)
+                names.append("%s=%s" %(basename(addon_dir), mod_version))
             if not names: log.ERROR("no mods could be found under %s" %(self._d2mp_path()))
             self._cache['mod_names'] = names
         return self._cache['mod_names']
     
-    def show_mod_list(self):
+    def mod_list_as_string(self):
         mod_names = self._mod_names()
         if mod_names:
-            msg = "You currently have no mods installed"
+            msg = "You currently have the following detected mods installed:\n\n%s" %(", ".join(self._mod_names()))
         else:
-            msg = "You currently have the following detected mods installed:\n\n%s" %(", ".join(self._modNames()))
+            msg = "You currently have no mods installed"
         return msg
 
     def mod_game_info(self):

@@ -8,6 +8,7 @@ import sys
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu
 from d2mp import SETTINGS, resources, log
+from d2mp.mod_manager import ModManager
 
 class SingleApplication(QApplication):
     def __init__(self, *args):
@@ -43,11 +44,15 @@ class SingleApplication(QApplication):
         
     def restart(self):
         pass
+    
     def uninstall(self):
         pass
-    def show_mod_list(self):
-        pass
     
+    def show_mod_list(self):
+        self.show_message("Mod List", ModManager().mod_list_as_string())
+    
+    def show_message(self, title, message, icon = QSystemTrayIcon.Information):
+        self.tray.showMessage(title, message, icon)
 
 if __name__ == '__main__':
     app = SingleApplication(sys.argv)  
