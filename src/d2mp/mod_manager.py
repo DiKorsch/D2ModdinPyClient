@@ -145,10 +145,34 @@ class ModManager(object):
         else:
             msg = "You currently have no mods installed"
         return msg
+    
+    def dota_info_file(self):
+        return join(self._dota_path(), normpath("dota/gameinfo.txt"))
 
     def mod_game_info(self):
-        pass
+        if not exists(self.dota_info_file()):
+            log.ERROR("dota game info not found under: %s" %(self.dota_info_file()))
+            return
+        
+        f = open(self.dota_info_file())
+        content = f.read()
+        f.close()
 
+        regex = "(Game\s+platform)(.+?})"
+        if re.search(regex, content, flags=re.DOTALL) is None:
+            log.ERROR("regex does not match: %s" %(regex))
+            return 
+        
+        replacement = "Game        platform\n      Game        |gameinfo_path|addons\\d2moddin\n    }"
+        new_content = re.sub(regex, replacement, content, flags=re.DOTALL)
+        
+        f = open(self.dota_info_file(), "w")
+        f.write(new_content)
+        f.close()
+        
+        print new_content == content
+
+        
     def unmod_game_info(self):
         pass
         

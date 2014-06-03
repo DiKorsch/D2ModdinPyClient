@@ -11,6 +11,8 @@ from mock import Mock
 from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
 import shutil, os
+from nt import mkdir
+import re
 
 
 class FinderTest(TestCase):
@@ -112,9 +114,87 @@ class ModTest(TestCase):
         
         self.assertTrue(len(os.listdir(self.manager._d2mp_path())) == 0, "no mods should be present in d2mp folder anymore")
         self.assertTrue(len(os.listdir(self.manager._mod_path())) == 0, "no mods should be present in mod folder anymore")
-        
-        
+
+
+def equal(text1, text2):
+    return re.sub("\s+", " ", text1) == re.sub("\s+", " ", text2)
+class GameInfoTest(TestCase):
     
+    def setUp(self):
+        self.dota_info_normal = """
+"GameInfo"
+{
+  game  "DOTA 2"
+  gamelogo 1
+  type multiplayer_only
+  nomodels 1
+  nohimodel 1
+  nocrosshair 0
+  GameData        "dota.fgd"
+  SupportsDX8 0
+
+
+  FileSystem
+  {
+    SteamAppId        816
+    ToolsAppId        211
+    
+    SearchPaths
+    {
+      Game        |gameinfo_path|.
+      Game        platform
+    }
+  }
+}"""
         
+        self.dota_info_modded = """
+             "GameInfo"
+            {
+              game  "DOTA 2"
+              gamelogo 1
+              type multiplayer_only
+              nomodels 1
+              nohimodel 1
+              nocrosshair 0
+              GameData        "dota.fgd"
+              SupportsDX8 0
+            
+            
+              FileSystem
+              {
+                SteamAppId        816
+                ToolsAppId        211
+                
+                SearchPaths
+                {
+                  Game        |gameinfo_path|.
+                  Game        platform
+                  Game        |gameinfo_path|addons\d2moddin
+                }
+              }
+            }"""
+    
+    
+        self.manager = ModManager()
+        self.real_method = self.manager._dota_path 
+        self.manager._dota_path = Mock(return_value = mkdtemp())
+        mkdir(join(self.manager._dota_path(), "dota"))
+        f = open(self.manager.dota_info_file(), "w")
+        f.write(self.dota_info_normal)
+        f.close()
+
+    def tearDown(self):
+        self.manager._dota_path = self.real_method
+
+    def test_mod_game_info(self):
+        f = open(self.manager.dota_info_file())
+        self.assertTrue(equal(f.read(), self.dota_info_normal), "dota info should be unchanged")
+        f.close()
+        
+        self.manager.mod_game_info()
+        
+        f = open(self.manager.dota_info_file())
+        self.assertTrue(equal(f.read(), self.dota_info_modded), "dota info should be modded")
+        f.close()
         
         
