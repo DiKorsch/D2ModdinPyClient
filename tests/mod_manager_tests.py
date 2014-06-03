@@ -81,6 +81,20 @@ class ModTest(TestCase):
         self.assertIn(mod2_name, os.listdir(self.manager._mod_path()), "mod2 should be active now")
         self.assertNotIn(mod1_name, os.listdir(self.manager._mod_path()), "mod1 should NOT be active now")    
         
+    def test_active_mod(self):
+        mod1_name, mod2_name = self.mods
+        self.assertIsNone(self.manager.get_active_mod(), "there should be no active mod")
+        
+        self.manager.set_mod(mod1_name)
+        self.assertEqual(mod1_name, self.manager.get_active_mod(), "mod1 should be active")
+        
+        self.manager.set_mod(mod2_name)
+        self.assertEqual(mod2_name, self.manager.get_active_mod(), "mod1 should be active")
+        
+        self.manager.delete_mods()
+        self.assertIsNone(self.manager.get_active_mod(), "there should be no active mod")
+        
+    
     def test_deleting_mod(self):
         mod_name = basename(self.mod_to_delete_folder)
         self.assertIn(mod_name, os.listdir(self.manager._d2mp_path()), "mod should be in d2mp folder")
