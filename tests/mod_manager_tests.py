@@ -122,30 +122,30 @@ class GameInfoTest(TestCase):
     
     def setUp(self):
         self.dota_info_normal = """
-"GameInfo"
-{
-  game  "DOTA 2"
-  gamelogo 1
-  type multiplayer_only
-  nomodels 1
-  nohimodel 1
-  nocrosshair 0
-  GameData        "dota.fgd"
-  SupportsDX8 0
-
-
-  FileSystem
-  {
-    SteamAppId        816
-    ToolsAppId        211
-    
-    SearchPaths
-    {
-      Game        |gameinfo_path|.
-      Game        platform
-    }
-  }
-}"""
+            "GameInfo"
+            {
+              game  "DOTA 2"
+              gamelogo 1
+              type multiplayer_only
+              nomodels 1
+              nohimodel 1
+              nocrosshair 0
+              GameData        "dota.fgd"
+              SupportsDX8 0
+            
+            
+              FileSystem
+              {
+                SteamAppId        816
+                ToolsAppId        211
+                
+                SearchPaths
+                {
+                  Game        |gameinfo_path|.
+                  Game        platform
+                }
+              }
+            }"""
         
         self.dota_info_modded = """
              "GameInfo"
@@ -187,14 +187,26 @@ class GameInfoTest(TestCase):
         self.manager._dota_path = self.real_method
 
     def test_mod_game_info(self):
-        f = open(self.manager.dota_info_file())
-        self.assertTrue(equal(f.read(), self.dota_info_normal), "dota info should be unchanged")
-        f.close()
+        
+        self.assertFalse(self.manager.is_modded(), "game info schould NOT be modded at the beginning")
+        
+#         f = open(self.manager.dota_info_file())
+#         self.assertTrue(equal(f.read(), self.dota_info_normal), "dota info should be unchanged")
+#         f.close()
         
         self.manager.mod_game_info()
+        self.assertTrue(self.manager.is_modded(), "game info schould be modded now")
         
-        f = open(self.manager.dota_info_file())
-        self.assertTrue(equal(f.read(), self.dota_info_modded), "dota info should be modded")
-        f.close()
+#         f = open(self.manager.dota_info_file())
+#         self.assertTrue(equal(f.read(), self.dota_info_modded), "dota info should be modded")
+#         f.close()
+    
+    def test_unmod_game_info(self):
+        self.manager.mod_game_info()
+        self.assertTrue(self.manager.is_modded(), "game info schould be modded at the beginning")
+        
+        self.manager.unmod_game_info()
+        self.assertFalse(self.manager.is_modded(), "game info schould NOT be modded anymore")
+    
         
         

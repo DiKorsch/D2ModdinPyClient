@@ -17,6 +17,23 @@ def ensure_exist(func):
         return res
     return wrapper
 
+def get_file_content(file_path):
+    if not isfile(file_path): return None
+    return open(file_path).read()
+
+def write_to_file(file_path, content):
+    f = open(file_path, "w")
+    error = None
+    try:
+        f.write(content)
+    except Exception as e:
+        error = e
+    finally:
+        f.close()
+    
+    if error is not None: raise error
+    
+
 class ModManager(object):
     
     _instance = None
@@ -149,14 +166,46 @@ class ModManager(object):
     def dota_info_file(self):
         return join(self._dota_path(), normpath("dota/gameinfo.txt"))
 
+    def is_modded(self):
+        content = get_file_content(self.dota_info_file())
+        regex = "(platform\s+Game.+d2moddin)"
+        return re.search(regex, content, flags = re.DOTALL) is not None
+    
+    def _modify_game_info(self, regex, replacement, should_be_modded):
+
+        if not exists(self.dota_info_file()):
+            log.ERROR("dota game info not found under: %s" %(self.dota_info_file()))
+            return
+        
+        
+        is_modded = self.is_modded()
+        if is_modded and should_be_modded:
+            if should_be_modded: 
+                log.WARN("tried to mod already modded dota game info")
+                return 
+        elif not is_modded and not should_be_modded:
+                log.WARN("tried to unmod not modded dota game info")
+                return 
+            
+        content = get_file_content(self.dota_info_file())
+
+        if re.search(regex, content, flags=re.DOTALL) is None:
+            log.ERROR("regex does not match: %s" %(regex))
+            return 
+        
+        new_content = re.sub(regex, replacement, content, flags=re.DOTALL)
+        write_to_file(self.dota_info_file(), new_content)
+    
     def mod_game_info(self):
         if not exists(self.dota_info_file()):
             log.ERROR("dota game info not found under: %s" %(self.dota_info_file()))
             return
         
-        f = open(self.dota_info_file())
-        content = f.read()
-        f.close()
+        if self.is_modded():
+            log.WARN("tried to mod already modded dota game info")
+            return
+        
+        content = get_file_content(self.dota_info_file())
 
         regex = "(Game\s+platform)(.+?})"
         if re.search(regex, content, flags=re.DOTALL) is None:
@@ -164,15 +213,26 @@ class ModManager(object):
             return 
         
         replacement = "Game        platform\n      Game        |gameinfo_path|addons\\d2moddin\n    }"
+        
         new_content = re.sub(regex, replacement, content, flags=re.DOTALL)
-        
-        f = open(self.dota_info_file(), "w")
-        f.write(new_content)
-        f.close()
-        
-        print new_content == content
-
+        write_to_file(self.dota_info_file(), new_content)
         
     def unmod_game_info(self):
-        pass
+        if not exists(self.dota_info_file()):
+            log.ERROR("dota game info not found under: %s" %(self.dota_info_file()))
+            return
         
+        if not self.is_modded():
+            log.WARN("tried to unmod not modded dota game info")
+            return
+        
+        content = get_file_content(self.dota_info_file())
+        
+
+        regex = "(platform\s+Game.+d2moddin)"
+        if re.search(regex, content, flags=re.DOTALL) is None:
+            log.ERROR("regex does not match: %s" %(regex))
+            return 
+        
+        new_content = re.sub(regex, "platform", content, flags=re.DOTALL)
+        write_to_file(self.dota_info_file(), new_content)
