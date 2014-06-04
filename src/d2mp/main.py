@@ -9,6 +9,7 @@ from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu
 from d2mp import SETTINGS, resources, log
 from d2mp.mod_manager import ModManager
+import os
 
 class SingleApplication(QApplication):
     def __init__(self, *args):
@@ -43,10 +44,16 @@ class SingleApplication(QApplication):
         return super(SingleApplication, self).exec_()
         
     def restart(self):
-        pass
+        python = sys.executable
+        args = set(sys.argv)
+        args.add("restart")
+        os.execl(python, python, *list(sys.argv))
+        self.exit()
     
     def uninstall(self):
-        pass
+        ModManager().delete_mods()
+        ModManager().uninstall_d2mp()
+        self.exit()
     
     def show_mod_list(self):
         self.show_message("Mod List", ModManager().mod_list_as_string())
