@@ -177,7 +177,6 @@ class ModManager(object):
             log.ERROR("dota game info not found under: %s" %(self.dota_info_file()))
             return
         
-        
         is_modded = self.is_modded()
         if is_modded and not should_be_modded:
             log.WARN("tried to mod already modded dota game info")

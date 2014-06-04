@@ -5,7 +5,7 @@ Created on 01.06.2014
 '''
 from unittest import TestCase
 
-from d2mp.mod_manager import ModManager
+from d2mp.mod_manager import ModManager, write_to_file, get_file_content
 from os import path
 from mock import Mock
 from tempfile import mkdtemp
@@ -116,8 +116,6 @@ class ModTest(TestCase):
         self.assertTrue(len(os.listdir(self.manager._mod_path())) == 0, "no mods should be present in mod folder anymore")
 
 
-def equal(text1, text2):
-    return re.sub("\s+", " ", text1) == re.sub("\s+", " ", text2)
 class GameInfoTest(TestCase):
     
     def setUp(self):
@@ -174,32 +172,30 @@ class GameInfoTest(TestCase):
               }
             }"""
     
-    
         self.manager = ModManager()
         self.real_method = self.manager._dota_path 
         self.manager._dota_path = Mock(return_value = mkdtemp())
         mkdir(join(self.manager._dota_path(), "dota"))
-        f = open(self.manager.dota_info_file(), "w")
-        f.write(self.dota_info_normal)
-        f.close()
+        write_to_file(self.manager.dota_info_file(), self.dota_info_normal)
 
     def tearDown(self):
         self.manager._dota_path = self.real_method
+
+    def test_is_modded_tester(self):
+        write_to_file(self.manager.dota_info_file(), self.dota_info_normal)
+        self.assertFalse(self.manager.is_modded(), "should NOT be modded")
+        
+        write_to_file(self.manager.dota_info_file(), self.dota_info_modded)
+        self.assertTrue(self.manager.is_modded(), "should be modded")
+        
 
     def test_mod_game_info(self):
         
         self.assertFalse(self.manager.is_modded(), "game info schould NOT be modded at the beginning")
         
-#         f = open(self.manager.dota_info_file())
-#         self.assertTrue(equal(f.read(), self.dota_info_normal), "dota info should be unchanged")
-#         f.close()
-        
         self.manager.mod_game_info()
         self.assertTrue(self.manager.is_modded(), "game info schould be modded now")
         
-#         f = open(self.manager.dota_info_file())
-#         self.assertTrue(equal(f.read(), self.dota_info_modded), "dota info should be modded")
-#         f.close()
     
     def test_unmod_game_info(self):
         self.manager.mod_game_info()
