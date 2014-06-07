@@ -68,7 +68,7 @@ class ModManager(object):
             else:
                 self._cache["steam_path"] = abspath("~/.steam/steam")
 
-        assert exists(self._cache["steam_path"])
+#         assert exists(self._cache["steam_path"])
         return self._cache.get("steam_path")
     
     def _dota_path(self):
