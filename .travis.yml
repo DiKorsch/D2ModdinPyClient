@@ -21,7 +21,7 @@ before_install:
   - sudo make install
   - cd ../D2ModdinPyClient
  
-install
+install:
   - pip install -r requirements.txt
 	
   
