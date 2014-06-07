@@ -13,6 +13,9 @@ __pycache__/
 env/
 bin/
 build/
+share/
+include/
+local/
 develop-eggs/
 dist/
 eggs/
