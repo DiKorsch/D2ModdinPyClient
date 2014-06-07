@@ -15,6 +15,7 @@ cd d2modd
 chmod +x install_deps.sh install_sip.sh install_pyqt.sh
 virtualenv .
 source bin/activate
+pip install -r requirements.txt
 ./install_deps.sh
 ./install_sip.sh
 ./install_pyqt.sh
