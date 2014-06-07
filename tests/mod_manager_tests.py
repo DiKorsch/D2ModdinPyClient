@@ -5,15 +5,12 @@ Created on 01.06.2014
 '''
 from unittest import TestCase
 
-from d2mp.mod_manager import ModManager, write_to_file, get_file_content
-from os import path
+from d2mp.mod_manager import ModManager, write_to_file
+from os import path, mkdir
 from mock import Mock
 from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
 import shutil, os
-from nt import mkdir
-from d2mp import steam
-import re
 
 
 class FinderTest(TestCase):

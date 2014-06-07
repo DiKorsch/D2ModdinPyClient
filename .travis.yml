@@ -4,7 +4,10 @@ python:
   - "2.7"
 
 before_install:
+  - sudo apt-get install python-qt4
+  - chmod +x install_sip.sh
   - chmod +x install_pyqt.sh
+  - ./install_sip.sh
   - ./install_pyqt.sh
   - cd ../D2ModdinPyClient
 
