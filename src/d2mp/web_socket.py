@@ -3,70 +3,78 @@ Created on 04.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.Qt import QTcpSocket, pyqtSignal, QObject
+from PyQt4.Qt import pyqtSignal, QObject, QTimer
 from d2mp.mod_manager import ModManager
-import json
+import json, thread
 
-# from websocket import WebSocketApp
+from websocket import WebSocketApp
 
 class WebSocket(QObject):
 
-    server = "ddp2.d2modd.in"
-    port = 4502
+    server = "echo.websocket.org"#"ddp2.d2modd.in"
+    port = 80#4502
     
-    address = "/ClientController"
+    address = ""#"ClientController"
     
     message = pyqtSignal(str)
     error = pyqtSignal(str)
+
+    shutdown = pyqtSignal()
+    uninstall = pyqtSignal()
+    install_mod = pyqtSignal(str, str, str) # mod_name, version, url
+    delete_mod = pyqtSignal(str)            # mod_name
+    set_mod = pyqtSignal(str)               # mod_name
+    connect_dota = pyqtSignal(str, int)     # address, port
+    launch_dota = pyqtSignal()
+    spectate = pyqtSignal(str, int)         # address, port
+    
+    def get_server_url(self):
+        return "ws://%s:%d/%s" %(WebSocket.server, WebSocket.port, WebSocket.address)
+    
+    def _new_socket(self):
+        return WebSocketApp(self.get_server_url(),
+                  on_open = self.on_open, 
+                  on_message = self.handle_message,
+                  on_error = self.handle_error,
+                  on_close = self.on_close)
+        
     
     def __init__(self):
         super(WebSocket, self).__init__()
-        self.socket = QTcpSocket()
         
-        self.socket.connected.connect(self.connected)
-        self.socket.disconnected.connect(self.disconnected)
-        self.socket.readyRead.connect(self.readyRead)
-        self.socket.error.connect(self.handleError)
+        self.ws = self._new_socket()
+        self._was_disconnected = False
+        thread.start_new_thread(self._connect, ())
+    
+    def _connect(self):
+        self.ws.run_forever()
         
-#         self.connect()
+    def handle_error(self, ws, message):
+        self.error.emit(message)
     
-    def disconnect(self):        
-        self.socket.disconnectFromHost()
-        if not self.socket.waitForDisconnected(msecs=10000):
-            self.message.emit("Can't disconnect from the lobby server!")
-            
-    def connect(self):        
-        self.socket.connectToHost(WebSocket.server, WebSocket.port)
-        if not self.socket.waitForConnected(msecs = 10000):
-            self.message.emit("Can't connect to the lobby server!")
+    def handle_message(self, ws, message):
+        content = json.loads(message)
+        print content
+        # TODO: parse and execute right methods!
     
-    def handleError(self, socket_error):
-        print socket_error, self.socket.errorString()
+    def on_close(self, ws):
+        self.error.emit("Disconnected, attempting to reconnect in 3 seconds...")
+        self._was_disconnected = True
+        self.ws = self._new_socket()
+        QTimer.singleShot(3 * 1000, self._connect())
         
-    def readyRead(self):
-        print "im ready to read"
-    
-    def write(self, content):
-#         self.socket.write(len(content))
-        self.socket.write(content)
-        if not self.socket.waitForBytesWritten(msecs=3000):
-            self.message.emit("Can't communicate with the lobby server!")
-        print "%s is written successfully" %(content)
-    
-    
-    
-    def connected(self):
-        self.message.emit("Connected and ready to begin installing mods!")
+    def on_open(self, ws):
+        if self._was_disconnected:
+            self.message.emit("Reconnected!")
+        else:
+            self.message.emit("Connected and ready to begin installing mods!")
+        self._was_disconnected = False
         man = ModManager()
         args = {
             "SteamIDs": man.steam_ids(),
             "Mods": man.mod_list(),
             "Version": man.VERSION, 
         }
-        self.write(json.dumps(args))
+        self.ws.send(json.dumps(args))
         
-    def disconnected(self):
-        self.message.emit("Disconnected, attempting to reconnect...")
-        self.connect()
     
-        print "i have disconnected"

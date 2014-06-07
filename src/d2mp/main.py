@@ -12,6 +12,7 @@ from d2mp.mod_manager import ModManager, write_to_file
 import os
 from os.path import abspath, join
 from d2mp.web_socket import WebSocket
+from d2mp.steam import connect_dota, launch_dota, spectate
 
 class SingleApplication(QApplication):
     def __init__(self, *args):
@@ -35,12 +36,27 @@ class SingleApplication(QApplication):
         self._create_tray_icon()
         self.manager.mod_game_info()
         self._start_file_watcher()
-        
-        self.socket = WebSocket()
-        self.socket.message.connect(self.show_message_from_socket)
-        self.socket.connect()
+        self._create_socket()
         
         return super(SingleApplication, self).exec_()
+    
+    def _create_socket(self):    
+        self.socket = WebSocket()
+        
+        self.socket.message.connect(self.show_message_from_socket)
+        self.socket.error.connect(self.show_error_from_socket)
+        
+        self.socket.shutdown.connect(self.exit)
+        self.socket.uninstall.connect(self.uninstall)
+        
+        self.socket.install_mod.connect(self.manager.install_mod)
+        self.socket.delete_mod.connect(self.manager.delete_mod)
+        self.socket.set_mod.connect(self.manager.set_mod)
+        
+        self.socket.connect_dota.connect(connect_dota)
+        self.socket.launch_dota.connect(launch_dota)
+        self.socket.spectate.connect(spectate)
+    
         
     @property
     def _watcher_file_name(self):
@@ -97,6 +113,9 @@ class SingleApplication(QApplication):
     
     def show_message_from_socket(self, message):
         self.show_message("Server message", message)
+        
+    def show_error_from_socket(self, message):
+        self.show_message("Server error", message, QSystemTrayIcon.Critical)
     
     def show_message(self, title, message, icon = QSystemTrayIcon.Information):
         self.tray.showMessage(title, message, icon)
