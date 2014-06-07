@@ -5,6 +5,7 @@ Created on 01.06.2014
 '''
 
 import sys
+sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher
 from d2mp import SETTINGS, resources, log
