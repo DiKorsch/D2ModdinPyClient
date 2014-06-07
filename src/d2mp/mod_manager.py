@@ -90,11 +90,11 @@ class ModManager(object):
     def _addons_path(self):
         return join(self._dota_path(), normpath("dota/addons"))
 
-    def find_steam_exe(self):
-        return join(self._steam_path(), STEAM_EXE)
-    
-    def find_dota_exe(self):
-        return join(self._dota_path(), DOTA_EXE)
+#     def find_steam_exe(self):
+#         return join(self._steam_path(), STEAM_EXE)
+#     
+#     def find_dota_exe(self):
+#         return join(self._dota_path(), DOTA_EXE)
     
     def _mod_name_file(self):
         return join(self._mod_path(), "modname.txt")
