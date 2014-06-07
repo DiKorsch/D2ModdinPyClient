@@ -12,6 +12,8 @@ from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
 import shutil, os
 
+def new_dota_dir():
+    ModManager._dota_path = Mock(return_value = mkdtemp())
 
 class FinderTest(TestCase):
 
@@ -35,9 +37,10 @@ class FinderTest(TestCase):
 class ModTest(TestCase):  
     
     def setUp(self):
+        new_dota_dir()
         self.manager = ModManager()
-        self.real_method = self.manager._dota_path 
-        self.manager._dota_path = Mock(return_value = mkdtemp())
+#         self.real_method = self.manager._dota_path 
+#         self.manager._dota_path = Mock(return_value = mkdtemp())
 
         self.mod1_folder = join(self.manager._d2mp_path(), "mod1")
         self.mod1_info_file = join(self.mod1_folder, "addoninfo.txt")
@@ -62,7 +65,7 @@ class ModTest(TestCase):
     
     def tearDown(self):
         shutil.rmtree(self.manager._d2mp_path())
-        self.manager._dota_path = self.real_method
+#         self.manager._dota_path = self.real_method
     
     def test_mod_names(self):
         for mod in self.mods:
@@ -170,14 +173,16 @@ class GameInfoTest(TestCase):
               }
             }"""
     
+        new_dota_dir()
         self.manager = ModManager()
-        self.real_method = self.manager._dota_path 
-        self.manager._dota_path = Mock(return_value = mkdtemp())
-        mkdir(join(self.manager._dota_path(), "dota"))
+#         self.real_method = self.manager._dota_path 
+#         self.manager._dota_path = Mock(return_value = mkdtemp())
+        dota_subdir = join(self.manager._dota_path(), "dota")
+        if not isdir(dota_subdir): mkdir(dota_subdir)
         write_to_file(self.manager.dota_info_file(), self.dota_info_normal)
 
-    def tearDown(self):
-        self.manager._dota_path = self.real_method
+#     def tearDown(self):
+#         self.manager._dota_path = self.real_method
 
     def test_is_modded_tester(self):
         write_to_file(self.manager.dota_info_file(), self.dota_info_normal)
