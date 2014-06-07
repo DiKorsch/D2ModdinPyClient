@@ -62,12 +62,14 @@ class ModManager(object):
             if not isdir(p): os.makedirs(p)
             
     def _steam_path(self):
-        if os.name == "nt":
-            if self._cache.get("steam_path") is None:
+        if self._cache.get("steam_path") is None:
+            if os.name == "nt":
                 self._cache["steam_path"] = str(QSettings("HKEY_CURRENT_USER\\Software\\Valve\\Steam", QSettings.NativeFormat).value("SteamPath", "").toString())
-            return self._cache["steam_path"]
-        else:
-            return None
+            else:
+                self._cache["steam_path"] = abspath("~/.steam/steam")
+
+        assert exists(self._cache["steam_path"])
+        return self._cache.get("steam_path")
     
     def _dota_path(self):
         dota_loc = [self._steam_path(), "SteamApps", "common"]
