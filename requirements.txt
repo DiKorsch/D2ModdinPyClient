@@ -1,2 +1,5 @@
 psutil
 websocket-client
+python-qt4 
+qt4-dev-tools 
+build-essential
