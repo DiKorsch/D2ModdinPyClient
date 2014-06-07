@@ -42,6 +42,7 @@ def unzip_from_stream(url, dest_dir):
 class ModManager(object):
     
     _instance = None
+    VERSION = "0.6.5"
     
     def __new__(cls, clear_cache = False):
         if not cls._instance: 
@@ -171,6 +172,13 @@ class ModManager(object):
         names[mod_name] = version
         self._cache["mod_names"] = names
     
+    def steam_ids(self):
+        if not self._cache.get('steam_ids'):
+            content = get_file_content(join(self._steam_path(), "config/config.vdf"))
+            self._cache['steam_ids'] = re.findall("\"SteamID\"\s+\"(\\d{17})\"", content)
+        
+        return self._cache.get('steam_ids', [])
+    
     def _mod_names(self):
         if not self._cache.get('mod_names'):
             p = self._d2mp_path()
@@ -179,8 +187,11 @@ class ModManager(object):
                     self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
         return self._cache.get('mod_names', {})
     
+    def mod_list(self):
+        return ["%s=%s" %(k,v) for k,v in self._mod_names().iteritems()]
+    
     def mod_list_as_string(self):
-        mod_names = ["%s=%s" %(k,v) for k,v in self._mod_names().iteritems()]
+        mod_names = self.mod_list()
         if mod_names:
             msg = "You currently have the following detected mods installed:\n\n%s" %(", ".join(mod_names))
         else:

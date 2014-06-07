@@ -12,6 +12,7 @@ from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
 import shutil, os
 from nt import mkdir
+from d2mp import steam
 import re
 
 
@@ -203,6 +204,3 @@ class GameInfoTest(TestCase):
         
         self.manager.unmod_game_info()
         self.assertFalse(self.manager.is_modded(), "game info schould NOT be modded anymore")
-    
-        
-        
