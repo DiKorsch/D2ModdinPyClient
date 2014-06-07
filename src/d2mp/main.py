@@ -5,9 +5,10 @@ Created on 01.06.2014
 '''
 
 import sys
+from time import sleep
 sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
-    QSystemTrayIcon, QMenu, QFileSystemWatcher
+    QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
 from d2mp import SETTINGS, resources, log
 from d2mp.mod_manager import ModManager, write_to_file
 import os
@@ -26,18 +27,20 @@ class SingleApplication(QApplication):
             self._running = False
             if not self._memory.create(1):
                 raise RuntimeError(self._memory.errorString().toLocal8Bit().data())
-        
-        self.manager = ModManager()
-
 
     def is_running(self):
         return self._running
     
     def exec_(self):
         self._create_tray_icon()
-        self.manager.mod_game_info()
-        self._start_file_watcher()
-        self._create_socket()
+        try:
+            self.manager = ModManager()
+            self.manager.mod_game_info()
+            self._start_file_watcher()
+            self._create_socket()
+        except Exception as e:
+            self.show_message("Critical Error", "%s\nClient will shutdown in 10 seconds" %(str(e)), QSystemTrayIcon.Critical)
+            QTimer.singleShot(10 * 1000, self.exit)
         
         return super(SingleApplication, self).exec_()
     
@@ -73,7 +76,6 @@ class SingleApplication(QApplication):
     
     def _watcher_changed_callback(self, val):
         if self._watcher_file_name not in os.listdir(val): 
-            from time import sleep
             secs = 3
             self.show_message("Shutdown", "Watcher file was deleted. D2MP will shotdown in %d seconds." %(secs))
             sleep(secs)
@@ -107,7 +109,7 @@ class SingleApplication(QApplication):
     
     def exit(self):
         # do some cleanup
-        super(SingleApplication, self).exit()
+        return super(SingleApplication, self).exit()
     
     def show_mod_list(self):
         self.show_message("Mod List", ModManager().mod_list_as_string())
@@ -117,7 +119,7 @@ class SingleApplication(QApplication):
         
     def show_error_from_socket(self, message):
         self.show_message("Server error", message, QSystemTrayIcon.Critical)
-    
+        
     def show_message(self, title, message, icon = QSystemTrayIcon.Information):
         self.tray.showMessage(title, message, icon)
 

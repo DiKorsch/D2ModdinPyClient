@@ -3,7 +3,7 @@ Created on 01.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.Qt import QSettings
+from PyQt4.Qt import QSettings, pyqtSignal
 from os.path import join, exists, normpath, isdir, isfile, basename, abspath
 from d2mp import STEAM_EXE, DOTA_EXE, log
 import os, re
@@ -54,7 +54,6 @@ class ModManager(object):
     def __init__(self, *args):
         super(ModManager, self).__init__()
         self._cache = {}
-        
         self._create_dirs()
         
     def _create_dirs(self):
@@ -75,8 +74,10 @@ class ModManager(object):
         dota_loc = [self._steam_path(), "SteamApps", "common"]
         for p in ["dota 2", "dota 2 beta"]:
             if exists("/".join(dota_loc + [p])): return "/".join(dota_loc + [p])
-        return None
-    
+        
+        log.CRITICAL("No dota2 folder found! Please install it!")
+        raise Exception("No dota2 folder found! Please install it!")
+        
     @ensure_exist
     def _mod_path(self):
         return join(self._addons_path(), "d2moddin")
