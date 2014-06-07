@@ -2,6 +2,7 @@ D2ModdinPyClient
 ================
 
 Crossplatform equivalence to https://github.com/kidovate/D2ModdinClient
+[![Build Status](https://travis-ci.org/BloodyD/D2ModdinPyClient.svg)](https://travis-ci.org/BloodyD/D2ModdinPyClient)
 
 
 
