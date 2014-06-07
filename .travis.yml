@@ -4,7 +4,7 @@ python:
   - "2.7"
 
 before_install:
-  - sudo apt-get install libxext-dev python-qt4 qt4-dev-tools build-essential
+  - sudo apt-get install python-qt4
   - cd ..
   - wget http://sourceforge.net/projects/pyqt/files/sip/sip-4.16/sip-4.16.tar.gz
   - tar -xvf sip-4.16.tar.gz
