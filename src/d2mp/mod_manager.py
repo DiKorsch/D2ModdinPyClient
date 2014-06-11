@@ -4,7 +4,7 @@ Created on 01.06.2014
 @author: Schleppi
 '''
 from PyQt4.Qt import QSettings, pyqtSignal
-from os.path import join, exists, normpath, isdir, isfile, basename, abspath
+from os.path import join, exists, normpath, isdir, isfile, basename, expanduser
 from d2mp import STEAM_EXE, DOTA_EXE, log
 import os, re
 from shutil import rmtree, copytree
@@ -74,9 +74,8 @@ class ModManager(object):
             if os.name == "nt":
                 self._cache["steam_path"] = str(QSettings("HKEY_CURRENT_USER\\Software\\Valve\\Steam", QSettings.NativeFormat).value("SteamPath", "").toString())
             else:
-                self._cache["steam_path"] = abspath("~/.steam/steam")
+                self._cache["steam_path"] = expanduser("~/.steam/steam")
 
-#         assert exists(self._cache["steam_path"])
         return self._cache.get("steam_path")
     
     def _dota_path(self):
