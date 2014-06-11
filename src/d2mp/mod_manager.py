@@ -11,6 +11,7 @@ from shutil import rmtree, copytree
 from urllib import urlopen
 from zipfile import ZipFile
 from StringIO import StringIO
+import json
 
 
 def ensure_exist(func):
@@ -39,10 +40,18 @@ def write_to_file(file_path, content):
 def unzip_from_stream(url, dest_dir):
     ZipFile(StringIO(urlopen(url).read())).extractall(dest_dir)
 
+class Mod(object):
+    def __init__(self, name, version):
+        self.name = name
+        self.version = version
+    
+    def as_dict(self):
+        return self.__dict__
+
 class ModManager(object):
     
     _instance = None
-    VERSION = "0.6.5"
+    VERSION = "2.0.5"
     
     def __new__(cls, clear_cache = False):
         if not cls._instance: 
@@ -125,6 +134,13 @@ class ModManager(object):
 #     def uninstall_d2mp(self):
 #         pass
 
+    def steam_ids(self):
+        if not self._cache.get('steam_ids'):
+            content = get_file_content(join(self._steam_path(), "config/config.vdf"))
+            self._cache['steam_ids'] = re.findall("\"SteamID\"\s+\"(\\d{17})\"", content)
+        
+        return self._cache.get('steam_ids', [])
+    
     def delete_mod(self, mod_name):
         mod_path = join(self._d2mp_path(), mod_name)
         if not exists(mod_path): 
@@ -158,43 +174,46 @@ class ModManager(object):
     
     def _extract_mod_version(self, addon_dir):
         
-        log.CRITICAL("TODO: extract mod version")
-        return "0.0.0"
-#         D2MP.cs: 176
-#         log.DEBUG("Found mod %s, detecting version..." %(addon_dir))
-#         file_path = join(self._d2mp_path(), join(addon_dir, "addoninfo.txt"))
-#         if not isfile(file_path): log.DEBUG("no addoninfo file found: %s" %(file_path))
-#         info_file = open(file_path, "r")
-#         info_file_content = info_file.read()
-#         info_file.close()
-#         result = re.match("(addonversion)(\s+)(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)", info_file_content)
-    
+        log.DEBUG("Found mod %s, detecting version..." %(addon_dir))
+        file_path = join(self._d2mp_path(), join(addon_dir, "addoninfo.txt"))
+        if not isfile(file_path): 
+            log.DEBUG("no addoninfo file found: %s" %(file_path))
+            return "0.0.0"
+        regex = "(addonversion\s+)(\d+\.\d+\.\d+)"
+        res = re.search(regex, get_file_content(file_path))
+        if res is not None:
+            return res.group(2)
+        else:
+            log.CRITICAL("could not extract version number with regex: %s" %(regex))
+            return "0.0.0"
     
     def _update_mod(self, mod_name, version):
-        names = self._cache.get("mod_names", {})
-        names[mod_name] = version
-        self._cache["mod_names"] = names
+        mods = self._cache.get("mods", [])
+        for mod in mods:
+            if mod.name != mod_name: continue
+            if mod.version != version:
+                mods.remove(mod)
+                mods.append(Mod(mod_name, version))
+                return
+        mods.append(Mod(mod_name, version))
+        self._cache["mods"] = mods
     
-    def steam_ids(self):
-        if not self._cache.get('steam_ids'):
-            content = get_file_content(join(self._steam_path(), "config/config.vdf"))
-            self._cache['steam_ids'] = re.findall("\"SteamID\"\s+\"(\\d{17})\"", content)
-        
-        return self._cache.get('steam_ids', [])
-    
-    def _mod_names(self):
-        if not self._cache.get('mod_names'):
+    def _mods(self):
+        if not self._cache.get('mods'):
             p = self._d2mp_path()
             for addon_dir in [join(p, f) for f in os.listdir(p)]:
                 if isdir(addon_dir):
                     self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
-        return self._cache.get('mod_names', {})
+        return self._cache.get('mods', [])
     
-    def mod_list(self):
-        return ["%s=%s" %(k,v) for k,v in self._mod_names().iteritems()]
+    def mod_names(self):
+        return [mod.name for mod in self._mods()]
     
-    def mod_list_as_string(self):
-        mod_names = self.mod_list()
+    def mods_as_json(self):
+        return [mod.as_dict() for mod in self._mods()]
+
+    def mod_names_as_string(self):
+        mod_names = self.mod_names()
         if mod_names:
             msg = "You currently have the following detected mods installed:\n\n%s" %(", ".join(mod_names))
         else:
@@ -233,10 +252,12 @@ class ModManager(object):
         write_to_file(self.dota_info_file(), new_content)
     
     def mod_game_info(self):
+        if self.is_modded(): return
         regex = "(Game\s+platform)(.+?})"
         replacement = "Game        platform\n      Game        |gameinfo_path|addons\\d2moddin\n    }"
         return self._modify_game_info(regex, replacement, should_be_modded=False)
         
     def unmod_game_info(self):
+        if not self.is_modded(): return
         regex = "(platform\s+Game.+d2moddin)"
         return self._modify_game_info(regex, "platform", should_be_modded=True)

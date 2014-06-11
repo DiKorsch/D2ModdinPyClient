@@ -38,6 +38,7 @@ class SingleApplication(QApplication):
             self.manager.mod_game_info()
             self._start_file_watcher()
             self._create_socket()
+            
         except Exception as e:
             self.show_message("Critical Error", "%s\nClient will shutdown in 10 seconds" %(str(e)), QSystemTrayIcon.Critical)
             QTimer.singleShot(10 * 1000, self.exit)
@@ -112,7 +113,7 @@ class SingleApplication(QApplication):
         return super(SingleApplication, self).exit()
     
     def show_mod_list(self):
-        self.show_message("Mod List", ModManager().mod_list_as_string())
+        self.show_message("Mod List", ModManager().mod_names_as_string())
     
     def show_message_from_socket(self, message):
         self.show_message("Server message", message)

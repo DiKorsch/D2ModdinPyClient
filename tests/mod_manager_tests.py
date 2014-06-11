@@ -6,7 +6,7 @@ Created on 01.06.2014
 from unittest import TestCase
 
 from d2mp.mod_manager import ModManager, write_to_file
-from os import path, mkdir
+from os import mkdir
 from mock import Mock
 from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
@@ -69,7 +69,7 @@ class ModTest(TestCase):
     
     def test_mod_names(self):
         for mod in self.mods:
-            self.assertIn(mod, self.manager.mod_list_as_string(), "mods \"%s\" was not in the mod list!" %(mod))
+            self.assertIn(mod, self.manager.mod_names_as_string(), "mods \"%s\" was not in the mod list!" %(mod))
         
     def test_setting_mod(self):
         mod1_name, mod2_name = self.mods

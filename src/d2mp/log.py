@@ -11,7 +11,7 @@ if GET_ENV() == "dev":
 else:
     level = logging.WARNING
     
-logging.basicConfig(filename='d2mp.log', level = level, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='d2mp.log', filemode = "w", level = level, format='%(levelname)s - %(funcName)s - %(message)s')
 
 WARN = logging.warning
 INFO = logging.info
