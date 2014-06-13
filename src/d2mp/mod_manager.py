@@ -51,7 +51,7 @@ class Mod(object):
 class ModManager(object):
     
     _instance = None
-    VERSION = "2.0.0"
+    VERSION = "2.1.0"
     
     def __new__(cls, clear_cache = False):
         if not cls._instance: 
