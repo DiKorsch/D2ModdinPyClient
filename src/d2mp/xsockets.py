@@ -47,12 +47,24 @@ class Callback(object):
         self.name = name
         self.fn = fn
         self.state = state
+    
+    def __str__(self):
+        return str(self.__dict__)
+     
+    def __repr__(self):
+        return str(self.__dict__)
 
 class Subscription(object):
     def __init__(self, name):
         super(Subscription, self).__init__()
         self.name = name
         self.callbacks = []
+    
+    def __str__(self):
+        return "<%s: %s>" %(self.name, self.callbacks)
+    
+    def __repr__(self):
+        return str(self)
 
     def addCallback(self, fn, state = {}):
         self.callbacks.append(Callback(self.name, fn, state))
@@ -198,9 +210,10 @@ class XSocketsClient(object):
         if self.subscriptions.get(event) is None: return
         self.subscriptions.fire(event, json.loads(message))
     
-    def send(self, content):
-        log.DEBUG("%s - %s" %(content, type(content)))
-        self.webSocket.send(content)
+    def send(self, data, event):
+        mes = Message(event, data)
+        log.DEBUG(mes.to_json())
+        self.webSocket.send(mes.to_json())
 
 '''
 def handleFoo(*args):

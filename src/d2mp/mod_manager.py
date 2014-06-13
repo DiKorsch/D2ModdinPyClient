@@ -51,7 +51,7 @@ class Mod(object):
 class ModManager(object):
     
     _instance = None
-    VERSION = "2.0.5"
+    VERSION = "2.0.0"
     
     def __new__(cls, clear_cache = False):
         if not cls._instance: 
@@ -198,11 +198,11 @@ class ModManager(object):
         self._cache["mods"] = mods
     
     def _mods(self):
-        if not self._cache.get('mods'):
-            p = self._d2mp_path()
-            for addon_dir in [join(p, f) for f in os.listdir(p)]:
-                if isdir(addon_dir):
-                    self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
+#         if not self._cache.get('mods'):
+#             p = self._d2mp_path()
+#             for addon_dir in [join(p, f) for f in os.listdir(p)]:
+#                 if isdir(addon_dir):
+#                     self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
         return self._cache.get('mods', [])
     
     def mod_names(self):

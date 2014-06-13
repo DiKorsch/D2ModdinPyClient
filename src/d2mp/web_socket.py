@@ -10,6 +10,7 @@ import json, thread
 from websocket import WebSocketApp, enableTrace
 from time import sleep
 from d2mp.xsockets import XSocketsClient
+from d2mp import log
 
 # enableTrace(True)
 
@@ -17,10 +18,10 @@ class WebSocket(QObject):
     
     offline = False
 
-    server = "127.0.0.1"#"ddp2.d2modd.in"
+    server = "ddp2.d2modd.in"
     port = 4502
     
-    address = "Generic"#"client"
+    address = "ClientController"
     
     message = pyqtSignal(str)
     error = pyqtSignal(str)
@@ -48,11 +49,10 @@ class WebSocket(QObject):
             onopen = self.on_open,
             onclose = self.on_close)
         
-        soc.bind("foo", self.printFoo)
-        
+        soc.bind("commands", self.handle_commands)
         return soc
         
-    def printFoo(self, *args):
+    def handle_commands(self, *args):
         print args
     
     def __init__(self):
@@ -70,6 +70,7 @@ class WebSocket(QObject):
         
     
     def handle_error(self, message):
+        log.DEBUG(message)
         self.error.emit(str(message))
     
     def _time_until_reconnect(self):
@@ -110,8 +111,5 @@ class WebSocket(QObject):
         else:
             self.message.emit("Connected and ready to begin installing mods!")
         self._was_disconnected = False
-#         args = self._init_message()
-#         print args
-#         print json.dumps(args)
-#         self.ws.send(json.dumps(args))
+        self.ws.send(self._init_message(), "data")
 
