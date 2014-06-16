@@ -5,11 +5,13 @@ Created on 01.06.2014
 '''
 from PyQt4.Qt import QDesktopServices, QUrl
 import psutil
+from d2mp import log
 
 def command(cmd):
     return QDesktopServices.openUrl(QUrl("steam://%s" %(cmd)))
 
 def launch_dota():
+    log.DEBUG("Launching dota")
     return command("run/570")
 
 def get_dota_process():
@@ -25,11 +27,13 @@ def kill_dota():
     dota_proc = get_dota_process()
     if dota_proc is not None: dota_proc.kill()
     
-def connect_dota(address, port):
-    command("connect/%s:%s" %(address, port))
+def connect_dota(ip):
+    log.DEBUG("Told Steam to connect to %s." %(ip))
+    command("connect/%s" %(ip))
 
 
-def spectate(address, port):
+def spectate(ip):
     kill_dota()
-    command("rungameid/570//+connect_hltv %s:%s" %(address, port))
+    log.DEBUG("Told Steam to spectate at %s." %(ip))
+    command("rungameid/570//+connect_hltv %s" %(ip))
         

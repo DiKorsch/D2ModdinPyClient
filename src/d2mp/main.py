@@ -56,16 +56,16 @@ class SingleApplication(QApplication):
         self.socket.message.connect(self.show_message_from_socket)
         self.socket.error.connect(self.show_error_from_socket)
         
-        self.socket.shutdown.connect(self.exit)
-        self.socket.uninstall.connect(self.uninstall)
-        
-        self.socket.install_mod.connect(self.manager.install_mod)
-        self.socket.delete_mod.connect(self.manager.delete_mod)
-        self.socket.set_mod.connect(self.manager.set_mod)
-        
-        self.socket.connect_dota.connect(connect_dota)
-        self.socket.launch_dota.connect(launch_dota)
-        self.socket.spectate.connect(spectate)
+#         self.socket.shutdown.connect(self.exit)
+#         self.socket.uninstall.connect(self.uninstall)
+#         
+#         self.socket.install_mod.connect(self.manager.install_mod)
+#         self.socket.delete_mod.connect(self.manager.delete_mod)
+#         self.socket.set_mod.connect(self.manager.set_mod)
+#         
+#         self.socket.connect_dota.connect(connect_dota)
+#         self.socket.launch_dota.connect(launch_dota)
+#         self.socket.spectate.connect(spectate)
     
         
     @property

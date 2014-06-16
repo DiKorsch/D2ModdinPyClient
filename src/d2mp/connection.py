@@ -10,6 +10,7 @@ from time import sleep
 from d2mp.xsockets import XSocketsClient
 from d2mp import log
 from os.path import join
+from d2mp.steam import launch_dota, connect_dota, spectate
 
 
 class ConnectionManager(QObject):
@@ -23,15 +24,6 @@ class ConnectionManager(QObject):
     
     message = pyqtSignal(str)
     error = pyqtSignal(str)
-
-    shutdown = pyqtSignal()
-    uninstall = pyqtSignal()
-    install_mod = pyqtSignal(str, str, str) # mod_name, version, url
-    delete_mod = pyqtSignal(str)            # mod_name
-    set_mod = pyqtSignal(str)               # mod_name
-    connect_dota = pyqtSignal(str, int)     # address, port
-    launch_dota = pyqtSignal()
-    spectate = pyqtSignal(str, int)         # address, port
 
     RECONNECT_TIME = 10                     # seconds
     RECONNECT_TIME_AFTER_MAX_ATTEMPS = 2    # minutes
@@ -83,10 +75,13 @@ class ConnectionManager(QObject):
         ModManager().install_mod(mod_name, version, url)
     
     def _command_del_mod(self, content):
-        ModManager().delete_mod(content["Mod"]["name"], content["Mod"]["version"])
+        mod_name = content["Mod"]["name"]
+        version = content["Mod"]["version"]
+        self.message.emit("Uninstalling Mod %s v%s" %(mod_name, version))
+        ModManager().delete_mod(mod_name, version)
     
     def _command_set_mod(self, content):
-        print content
+        ModManager().set_mod(content["Mod"]["name"])
     
     
     def _command_close(self, content):
@@ -96,13 +91,13 @@ class ConnectionManager(QObject):
         print content
     
     def _command_launch(self, content):
-        print content
+        launch_dota()
         
     def _command_connect(self, content):
-        print content
+        connect_dota(content["ip"])
         
     def _command_spectate(self, content):
-        print content
+        spectate(content["ip"])
     
     
     

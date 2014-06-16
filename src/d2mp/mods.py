@@ -176,14 +176,14 @@ class ModManager(object):
         file_path = join(self._d2mp_path(), join(addon_dir, "addoninfo.txt"))
         if not isfile(file_path): 
             log.DEBUG("no addoninfo file found: %s" %(file_path))
-            return "0.0.0"
+            return "0.0.1"
         regex = "(addonversion\s+)(\d+\.\d+\.\d+)"
         res = re.search(regex, get_file_content(file_path))
         if res is not None:
             return res.group(2)
         else:
             log.CRITICAL("could not extract version number with regex: %s" %(regex))
-            return "0.0.0"
+            return "0.0.1"
     
     def _update_mod(self, mod_name, version):
         mods = self._cache.get("mods", [])
