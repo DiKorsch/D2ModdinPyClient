@@ -5,14 +5,14 @@ Created on 01.06.2014
 '''
 from unittest import TestCase
 
-from d2mp.mods import ModManager, write_to_file
+from d2mp.core.mods import ModManager, write_to_file
 from os import mkdir
 from mock import Mock
 from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
 import shutil, os
-from d2mp.xsockets import XSockets, XSocketsClient
-from d2mp.connection import ConnectionManager
+from d2mp.utils.xsockets import XSockets, XSocketsClient
+from d2mp.core.connection import ConnectionManager
 
 def new_dota_dir():
     ModManager._dota_path = Mock(return_value = mkdtemp())

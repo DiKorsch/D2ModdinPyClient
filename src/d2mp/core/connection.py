@@ -4,13 +4,13 @@ Created on 04.06.2014
 @author: Schleppi
 '''
 from PyQt4.Qt import pyqtSignal, QObject
-from d2mp.mods import ModManager
+from d2mp.core.mods import ModManager
 
 from time import sleep
-from d2mp.xsockets import XSocketsClient
-from d2mp import log
+from d2mp.utils.xsockets import XSocketsClient
+from d2mp.utils import log
 from os.path import join
-from d2mp.steam import launch_dota, connect_dota, spectate
+from d2mp.utils.steam import launch_dota, connect_dota, spectate
 
 
 class ConnectionManager(QObject):

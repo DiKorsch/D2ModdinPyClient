@@ -5,7 +5,7 @@ Created on 01.06.2014
 '''
 from PyQt4.Qt import QDesktopServices, QUrl
 import psutil
-from d2mp import log
+from d2mp.utils import log
 
 def command(cmd):
     return QDesktopServices.openUrl(QUrl("steam://%s" %(cmd)))

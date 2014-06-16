@@ -6,7 +6,7 @@ Created on 11.06.2014
 from websocket import WebSocketApp as ConnectionManager
 import json, thread
 
-from d2mp import log
+from d2mp.utils import log
 
 class XSockets:
     Version = "3.0"

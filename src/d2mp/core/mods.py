@@ -5,7 +5,7 @@ Created on 01.06.2014
 '''
 from PyQt4.Qt import QSettings, pyqtSignal, QObject
 from os.path import join, exists, normpath, isdir, isfile, basename, expanduser
-from d2mp import log
+from d2mp.utils import log
 import os, re
 from shutil import rmtree, copytree
 from urllib import urlopen

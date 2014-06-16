@@ -10,11 +10,12 @@ from time import sleep
 sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
-from d2mp import SETTINGS, log
-from d2mp.mods import ModManager, write_to_file
+from d2mp import SETTINGS
+from d2mp.utils import log
+from d2mp.core.mods import ModManager, write_to_file
 import os
 from os.path import abspath, join
-from d2mp.connection import ConnectionManager
+from d2mp.core.connection import ConnectionManager
 
 
 class SingleApplication(QApplication):
