@@ -137,19 +137,21 @@ class ModManager(object):
         
         return self._cache.get('steam_ids', [])
     
-    def delete_mod(self, mod_name):
+    def delete_mod(self, mod_name, version = None):
         mod_path = join(self._d2mp_path(), mod_name)
         if not exists(mod_path): 
             log.ERROR("wanted to delete not existing mod: %s" %(mod_name))
             return
         log.DEBUG("deleting mod %s" %(mod_name))
         rmtree(mod_path)
+        self._remove_mod(mod_name, version)
+        self.signals.contact_server.emit({"msg": "ondeleted", "Mod": Mod(mod_name, version or "0.0.1").as_dict()})
     
     def delete_mods(self):
         rmtree(self._d2mp_path())
         rmtree(self._mod_path())
         log.DEBUG("deleted all present mods")
-        
+        self._cache["mods"] = []
     
     def set_mod(self, mod_name):
         active_mod = self.get_active_mod()
@@ -189,11 +191,19 @@ class ModManager(object):
             if mod.name != mod_name: continue
             if mod.version != version:
                 mods.remove(mod)
-                mods.append(Mod(mod_name, version))
-                return
+                break
         mods.append(Mod(mod_name, version))
         self._cache["mods"] = mods
     
+    def _remove_mod(self, mod_name, version):
+        mods = self._cache.get("mods", [])
+        for mod in mods:
+            if mod.name == mod_name and (not version or mod.version == version):
+                mods.remove(mod)
+                return
+        
+        log.ERROR("mod attemted to delete does not exist: %s v%s!" %(mod_name, version))            
+        
     def _mods(self):
         if not self._cache.get('mods'):
             p = self._d2mp_path()

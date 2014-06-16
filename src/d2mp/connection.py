@@ -9,6 +9,7 @@ from d2mp.mods import ModManager
 from time import sleep
 from d2mp.xsockets import XSocketsClient
 from d2mp import log
+from os.path import join
 
 
 class ConnectionManager(QObject):
@@ -51,7 +52,6 @@ class ConnectionManager(QObject):
             "wrong_content":    self._wrong_content,              
 
             "installmod":       self._command_install_mod,
-            "oninstalled":      self._command_uninstall_mod,
             "delmod":           self._command_del_mod,
             "setmod":           self._command_set_mod,
             
@@ -82,11 +82,8 @@ class ConnectionManager(QObject):
         self.message.emit("Installing Mod %s v%s" %(mod_name, version))
         ModManager().install_mod(mod_name, version, url)
     
-    def _command_uninstall_mod(self, content):
-        print content
-    
     def _command_del_mod(self, content):
-        print content
+        ModManager().delete_mod(content["Mod"]["name"], content["Mod"]["version"])
     
     def _command_set_mod(self, content):
         print content

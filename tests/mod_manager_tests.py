@@ -17,27 +17,14 @@ from d2mp.connection import ConnectionManager
 def new_dota_dir():
     ModManager._dota_path = Mock(return_value = mkdtemp())
 
-# class FinderTest(TestCase):
-# 
-#     def test_singleton(self):
-#         man1 = ModManager()
-#         man2 = ModManager()
-#         
-#         self.assertEqual(man1, man2)
-#         
-#     def test_steam_and_dota_should_be_installed(self):
-#         steam_exe = ModManager().find_steam_exe()
-#         self.assertIsNotNone(steam_exe, "please install steam")
-#         self.assertTrue(path.exists(steam_exe), "steam executable does not exist: %s" %(steam_exe))
-#         self.assertTrue(path.isfile(steam_exe), "steam executable should be a file: %s" %(steam_exe))
-#         
-#         dota_exe = ModManager().find_dota_exe()
-#         self.assertIsNotNone(dota_exe, "please install dota!")
-#         self.assertTrue(path.exists(dota_exe), "dota executable does not exist: %s" %(dota_exe))
-#         self.assertTrue(path.isfile(dota_exe), "dota executable should be a file: %s" %(dota_exe))
-        
 class ModTest(TestCase):  
     
+    def test_singleton(self):
+        man1 = ModManager()
+        man2 = ModManager()
+         
+        self.assertEqual(man1, man2)
+        
     def setUp(self):
         new_dota_dir()
         self.manager = ModManager()
@@ -103,20 +90,25 @@ class ModTest(TestCase):
     def test_deleting_mod(self):
         mod_name = basename(self.mod_to_delete_folder)
         self.assertIn(mod_name, os.listdir(self.manager._d2mp_path()), "mod should be in d2mp folder")
+        self.assertIn(mod_name, self.manager.mod_names(), "mod should be in cache")
         self.manager.delete_mod(mod_name)
         self.assertNotIn(mod_name, os.listdir(self.manager._d2mp_path()), "mod should NOT be in d2mp folder")
-    
+        self.assertNotIn(mod_name, self.manager.mod_names(), "mod should NOT be in cache")    
+
     def test_delete_all_mods(self):
         mod1, mod2 = self.mods
         mod3 = basename(self.mod_to_delete_folder)
         
         for mod in [mod1, mod2, mod3]:
             self.assertIn(mod, os.listdir(self.manager._d2mp_path()), "all mods should be present")
+            self.assertIn(mod, self.manager.mod_names(), "all mods should be present in cache")
         
         self.manager.delete_mods()
         
         self.assertTrue(len(os.listdir(self.manager._d2mp_path())) == 0, "no mods should be present in d2mp folder anymore")
         self.assertTrue(len(os.listdir(self.manager._mod_path())) == 0, "no mods should be present in mod folder anymore")
+        
+        self.assertTrue(len(self.manager._mods()) == 0, "no mods should be present in cache anymore")
 
 
 class ModInstallTest(TestCase):
