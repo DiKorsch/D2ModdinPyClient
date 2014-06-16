@@ -11,6 +11,7 @@ def command(cmd):
     return QDesktopServices.openUrl(QUrl("steam://%s" %(cmd)))
 
 def launch_dota():
+    if is_dota_running(): return
     log.DEBUG("Launching dota")
     return command("run/570")
 
