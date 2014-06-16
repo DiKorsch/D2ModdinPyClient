@@ -124,7 +124,6 @@ class ModInstallTest(TestCase):
         self.manager = ModManager()
         self.con = ConnectionManager()
         self.manager.signals.message.connect(self.con.send)
-        self.con.install_mod.connect(self.manager.install_mod)
          
     def tearDown(self):
         shutil.rmtree(self.manager._d2mp_path())

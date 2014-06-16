@@ -4,17 +4,18 @@ Created on 01.06.2014
 @author: Schleppi
 '''
 
+from d2mp import resources
 import sys
 from time import sleep
 sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
-from d2mp import SETTINGS, resources, log
+from d2mp import SETTINGS, log
 from d2mp.mods import ModManager, write_to_file
 import os
 from os.path import abspath, join
 from d2mp.connection import ConnectionManager
-from d2mp.steam import connect_dota, launch_dota, spectate
+
 
 class SingleApplication(QApplication):
     def __init__(self, *args):
