@@ -11,6 +11,8 @@ from mock import Mock
 from tempfile import mkdtemp
 from os.path import join, isdir, isfile, basename
 import shutil, os
+from d2mp.xsockets import XSockets, XSocketsClient
+from d2mp.connection import ConnectionManager
 
 def new_dota_dir():
     ModManager._dota_path = Mock(return_value = mkdtemp())
@@ -117,6 +119,32 @@ class ModTest(TestCase):
         self.assertTrue(len(os.listdir(self.manager._mod_path())) == 0, "no mods should be present in mod folder anymore")
 
 
+class ModInstallTest(TestCase):
+    def send_reply(self, *args, **kwargs):
+        self.manager.signals.message.emit("ready")
+    
+    def setUp(self):
+        new_dota_dir()
+        ModManager.install_mod = Mock(side_effect = self.send_reply)
+        XSocketsClient.start = Mock()
+        ConnectionManager.send = Mock()
+         
+        self.manager = ModManager()
+        self.con = ConnectionManager()
+        self.manager.signals.message.connect(self.con.send)
+        self.con.install_mod.connect(self.manager.install_mod)
+         
+    def tearDown(self):
+        shutil.rmtree(self.manager._d2mp_path())
+         
+    def test_install_mod(self):
+        self.con.handle_command({"msg": "installmod", "url":"someurl", "Mod": {"name":"mod_name", "version":"mod_version" }})
+         
+        self.manager.install_mod.assert_called_with("mod_name", "mod_version", "someurl")
+        self.con.send.assert_called_with("ready")
+    
+    
+        
 class GameInfoTest(TestCase):
     
     def setUp(self):
@@ -206,3 +234,6 @@ class GameInfoTest(TestCase):
         
         self.manager.unmod_game_info()
         self.assertFalse(self.manager.is_modded(), "game info schould NOT be modded anymore")
+
+
+

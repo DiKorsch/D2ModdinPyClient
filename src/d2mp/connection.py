@@ -34,7 +34,7 @@ class ConnectionManager(QObject):
 
     RECONNECT_TIME = 10                     # seconds
     RECONNECT_TIME_AFTER_MAX_ATTEMPS = 2    # minutes
-    MAX_ATTEMPS = 1
+    MAX_ATTEMPS = 3
     
     def get_server_url(self):
         return "ws://%s:%d/%s" %(ConnectionManager.server, ConnectionManager.port, ConnectionManager.address)
@@ -46,7 +46,7 @@ class ConnectionManager(QObject):
             onopen = self.on_open,
             onclose = self.on_close)
         
-        soc.bind("commands", self.handle_commands)
+        soc.bind("commands", self.handle_command)
         self._commands = {
             "wrong_content":    self._wrong_content,              
 
@@ -66,7 +66,7 @@ class ConnectionManager(QObject):
 
     # Commands
         
-    def handle_commands(self, content):
+    def handle_command(self, content):
         self._commands.get(content.get("msg", "wrong_content"), self._command_not_found)(content)
     
     def _wrong_content(self, content):

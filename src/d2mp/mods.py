@@ -47,26 +47,29 @@ class Mod(object):
     def as_dict(self):
         return self.__dict__
 
-class ModManager(QObject):
+class ModManager(object):
     
     _instance = None
-    VERSION = "2.1.0"
+    VERSION = "2.3.1"
     
-    contact_server = pyqtSignal(object)
-    message = pyqtSignal(str)
+    
+    class signals(QObject):
+        contact_server = pyqtSignal(object)
+        message = pyqtSignal(str)
     
     def __new__(cls, clear_cache = False):
-        if not cls._instance: 
+        if not cls._instance:
             cls._instance = super(ModManager, cls).__new__(cls)
+            cls._instance._cache = {}
+            cls._instance._create_dirs()
+            cls._instance.signals = ModManager.signals()
         if clear_cache:
             cls._instance._cache = {}
         return cls._instance
     
-    def __init__(self, *args):
+    def __init__(self):
         super(ModManager, self).__init__()
-        self._cache = {}
-        self._create_dirs()
-        
+    
     def _create_dirs(self):
         for p in [self._d2mp_path(), self._mod_path()]:
             if not isdir(p): os.makedirs(p)
@@ -119,9 +122,9 @@ class ModManager(QObject):
         unzip_from_stream(url, target_dir)
 
         log.INFO("Mod installed!")
-        self.message.emit("Mod %s successfully installed!" %(mod_name))
+        self.signals.message.emit("Mod %s successfully installed!" %(mod_name))
         self._update_mod(mod_name, version)
-        self.contact_server.emit({"msg": "oninstalled", "Mod": Mod(mod_name, version).as_dict()})
+        self.signals.contact_server.emit({"msg": "oninstalled", "Mod": Mod(mod_name, version).as_dict()})
     
 #     dont think this is a good way of doing it
 #     def uninstall_d2mp(self):

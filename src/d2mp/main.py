@@ -34,9 +34,7 @@ class SingleApplication(QApplication):
     def exec_(self):
         self._create_tray_icon()
         try:
-            self.manager = ModManager()
-            self.manager.mod_game_info()
-            self.manager.message.connect(self.show_message_from_mod_manager)
+            self._create_mod_manager()
             self._start_file_watcher()
             self._create_socket()
             
@@ -45,11 +43,15 @@ class SingleApplication(QApplication):
             QTimer.singleShot(10 * 1000, self.exit)
         
         return super(SingleApplication, self).exec_()
+    def _create_mod_manager(self):
+        self.manager = ModManager()
+        self.manager.mod_game_info()
+        self.manager.signals.message.connect(self.show_message_from_mod_manager)
     
     def _create_socket(self):    
         self.socket = ConnectionManager()
         
-        self.manager.contact_server.connect(self.socket.send)
+        self.manager.signals.contact_server.connect(self.socket.send)
         
         self.socket.message.connect(self.show_message_from_socket)
         self.socket.error.connect(self.show_error_from_socket)
