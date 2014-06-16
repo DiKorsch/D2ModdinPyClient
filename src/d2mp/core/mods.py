@@ -11,6 +11,7 @@ from shutil import rmtree, copytree
 from urllib import urlopen
 from zipfile import ZipFile
 from StringIO import StringIO
+from d2mp import STEAM_EXE
 
 
 def ensure_exist(func):
@@ -105,6 +106,9 @@ class ModManager(object):
 
     def _mod_name_file(self):
         return join(self._mod_path(), "modname.txt")
+    
+    def steam_exe(self):
+        return join(ModManager()._steam_path(), STEAM_EXE)
     
     def get_active_mod(self):
         info_file = self._mod_name_file()
