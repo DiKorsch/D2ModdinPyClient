@@ -7,6 +7,8 @@ Created on 01.06.2014
 from d2mp import resources
 import sys
 from time import sleep
+from d2mp.ui import UIManager
+from d2mp.ui.windows import PreferencesWindow
 sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
@@ -58,17 +60,6 @@ class SingleApplication(QApplication):
         self.socket.message.connect(self.show_message_from_socket)
         self.socket.error.connect(self.show_error_from_socket)
         
-#         self.socket.shutdown.connect(self.exit)
-#         self.socket.uninstall.connect(self.uninstall)
-#         
-#         self.socket.install_mod.connect(self.manager.install_mod)
-#         self.socket.delete_mod.connect(self.manager.delete_mod)
-#         self.socket.set_mod.connect(self.manager.set_mod)
-#         
-#         self.socket.connect_dota.connect(connect_dota)
-#         self.socket.launch_dota.connect(launch_dota)
-#         self.socket.spectate.connect(spectate)
-    
         
     @property
     def _watcher_file_name(self):
@@ -96,6 +87,7 @@ class SingleApplication(QApplication):
         traymenu = QMenu()
         traymenu.addAction("Restart", self.restart)
         traymenu.addAction("Uninstall", self.uninstall)
+        traymenu.addAction("Preferences", UIManager().open_preferences)
         traymenu.addAction("Show mod list", self.show_mod_list)
         traymenu.addSeparator()
         traymenu.addAction("Exit", self.exit)
@@ -139,7 +131,8 @@ class SingleApplication(QApplication):
 
 if __name__ == '__main__':
     app = SingleApplication(sys.argv)  
- 
+    app.setQuitOnLastWindowClosed(False);
+
     if app.is_running():
         log.DEBUG("[main] d2mp is already running!")
         exit()

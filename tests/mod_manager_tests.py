@@ -66,11 +66,11 @@ class ModTest(TestCase):
         self.assertNotIn(mod2_name, os.listdir(self.manager._mod_path()), "mod2 should NOT be active now")
         self.assertNotIn(mod1_name, os.listdir(self.manager._mod_path()), "mod1 should NOT be active now")    
         self.manager.set_mod(mod1_name)
-        self.assertIn(mod1_name, os.listdir(self.manager._mod_path()), "mod1 should be active now")
+        self.assertIn(mod1_name, self.manager.get_active_mod(), "mod1 should be active now")
         
         self.assertNotIn(mod2_name, os.listdir(self.manager._mod_path()), "mod2 should NOT be active now")        
         self.manager.set_mod(mod2_name)
-        self.assertIn(mod2_name, os.listdir(self.manager._mod_path()), "mod2 should be active now")
+        self.assertIn(mod2_name, self.manager.get_active_mod(), "mod2 should be active now")
         self.assertNotIn(mod1_name, os.listdir(self.manager._mod_path()), "mod1 should NOT be active now")    
         
     def test_active_mod(self):

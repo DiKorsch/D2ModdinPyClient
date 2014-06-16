@@ -111,7 +111,6 @@ class ConnectionManager(QObject):
     def __init__(self):
         super(ConnectionManager, self).__init__()
         if ConnectionManager.offline: 
-            print ModManager().mods_as_json()
             return
         self.ws = self._new_socket()
         self._was_disconnected = False

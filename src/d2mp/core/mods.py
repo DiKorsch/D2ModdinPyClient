@@ -158,18 +158,18 @@ class ModManager(object):
         if not(active_mod is None or active_mod != mod_name): return
         log.DEBUG("Setting active mod to %s." %mod_name);
         
-        rmtree(self._mod_path())
         assert exists(self._d2mp_path())
         from_dir = join(self._d2mp_path(), mod_name.split("=")[0])
-        to_dir = join(self._mod_path(), mod_name.split("=")[0])
+        to_dir = self._mod_path()
         assert exists(from_dir)
 
+        rmtree(self._addons_path())
         copytree(from_dir, to_dir)
         
         f = open(self._mod_name_file(), "w")
         f.write(mod_name)
         f.close()
-    
+
     def _extract_mod_version(self, addon_dir):
         
         log.DEBUG("Found mod %s, detecting version..." %(addon_dir))
