@@ -5,7 +5,7 @@ Created on 01.06.2014
 '''
 from unittest import TestCase
 
-from d2mp.mod_manager import ModManager, write_to_file
+from d2mp.mods import ModManager, write_to_file
 from os import mkdir
 from mock import Mock
 from tempfile import mkdtemp

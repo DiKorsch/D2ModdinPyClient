@@ -3,15 +3,14 @@ Created on 01.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.Qt import QSettings, pyqtSignal
+from PyQt4.Qt import QSettings, pyqtSignal, QObject
 from os.path import join, exists, normpath, isdir, isfile, basename, expanduser
-from d2mp import STEAM_EXE, DOTA_EXE, log
+from d2mp import log
 import os, re
 from shutil import rmtree, copytree
 from urllib import urlopen
 from zipfile import ZipFile
 from StringIO import StringIO
-import json
 
 
 def ensure_exist(func):
@@ -48,10 +47,13 @@ class Mod(object):
     def as_dict(self):
         return self.__dict__
 
-class ModManager(object):
+class ModManager(QObject):
     
     _instance = None
     VERSION = "2.1.0"
+    
+    contact_server = pyqtSignal(object)
+    message = pyqtSignal(str)
     
     def __new__(cls, clear_cache = False):
         if not cls._instance: 
@@ -98,12 +100,6 @@ class ModManager(object):
     def _addons_path(self):
         return join(self._dota_path(), normpath("dota/addons"))
 
-#     def find_steam_exe(self):
-#         return join(self._steam_path(), STEAM_EXE)
-#     
-#     def find_dota_exe(self):
-#         return join(self._dota_path(), DOTA_EXE)
-    
     def _mod_name_file(self):
         return join(self._mod_path(), "modname.txt")
     
@@ -115,19 +111,17 @@ class ModManager(object):
         return name
 
     def install_mod(self, mod_name, version, url):
-        log.INFO("Server requested that we install mod " + mod_name + " from download " + url);
+        log.INFO("Server requested that we install mod " + mod_name + " from download " + url)
 
-#         icon.DisplayBubble("Downloading mod " + mod_name + "...");
-
-        target_dir = join(self._d2mp_path(), mod_name);
+        target_dir = join(self._d2mp_path(), mod_name)
         rmtree(target_dir, True)
         os.mkdir(target_dir)
-        unzip_from_stream(url, target_dir);
+        unzip_from_stream(url, target_dir)
 
-        log.INFO("Mod installed!");
-#         icon.DisplayBubble("Mod downloaded successfully: " + modname + ".");
-#         ws.Send("installedMod:" + modname);
+        log.INFO("Mod installed!")
+        self.message.emit("Mod %s successfully installed!" %(mod_name))
         self._update_mod(mod_name, version)
+        self.contact_server.emit({"msg": "oninstalled", "Mod": Mod(mod_name, version).as_dict()})
     
 #     dont think this is a good way of doing it
 #     def uninstall_d2mp(self):
@@ -198,11 +192,11 @@ class ModManager(object):
         self._cache["mods"] = mods
     
     def _mods(self):
-#         if not self._cache.get('mods'):
-#             p = self._d2mp_path()
-#             for addon_dir in [join(p, f) for f in os.listdir(p)]:
-#                 if isdir(addon_dir):
-#                     self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
+        if not self._cache.get('mods'):
+            p = self._d2mp_path()
+            for addon_dir in [join(p, f) for f in os.listdir(p)]:
+                if isdir(addon_dir):
+                    self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
         return self._cache.get('mods', [])
     
     def mod_names(self):

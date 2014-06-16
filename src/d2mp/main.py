@@ -10,10 +10,10 @@ sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
 from d2mp import SETTINGS, resources, log
-from d2mp.mod_manager import ModManager, write_to_file
+from d2mp.mods import ModManager, write_to_file
 import os
 from os.path import abspath, join
-from d2mp.web_socket import WebSocket
+from d2mp.connection import ConnectionManager
 from d2mp.steam import connect_dota, launch_dota, spectate
 
 class SingleApplication(QApplication):
@@ -36,6 +36,7 @@ class SingleApplication(QApplication):
         try:
             self.manager = ModManager()
             self.manager.mod_game_info()
+            self.manager.message.connect(self.show_message_from_mod_manager)
             self._start_file_watcher()
             self._create_socket()
             
@@ -46,7 +47,9 @@ class SingleApplication(QApplication):
         return super(SingleApplication, self).exec_()
     
     def _create_socket(self):    
-        self.socket = WebSocket()
+        self.socket = ConnectionManager()
+        
+        self.manager.contact_server.connect(self.socket.send)
         
         self.socket.message.connect(self.show_message_from_socket)
         self.socket.error.connect(self.show_error_from_socket)
@@ -105,7 +108,7 @@ class SingleApplication(QApplication):
     
     def uninstall(self):
         ModManager().delete_mods()
-        ModManager().uninstall_d2mp()
+#         ModManager().uninstall_d2mp()
         self.exit()
     
     def exit(self):
@@ -120,6 +123,12 @@ class SingleApplication(QApplication):
         
     def show_error_from_socket(self, message):
         self.show_message("Server error", message, QSystemTrayIcon.Critical)
+        
+    def show_message_from_mod_manager(self, message):
+        self.show_message("ModManager message", message)
+        
+    def show_error_from_mod_manager(self, message):
+        self.show_message("ModManager error", message, QSystemTrayIcon.Critical)
         
     def show_message(self, title, message, icon = QSystemTrayIcon.Information):
         self.tray.showMessage(title, message, icon)

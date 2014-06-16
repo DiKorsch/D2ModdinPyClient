@@ -3,7 +3,7 @@ Created on 11.06.2014
 
 @author: Schleppi
 '''
-from websocket import WebSocketApp as WebSocket
+from websocket import WebSocketApp as ConnectionManager
 import json, thread
 
 from d2mp import log
@@ -150,7 +150,7 @@ class XSocketsClient(object):
 
 
     def start(self, url, onopen, onclose):
-        self.webSocket = WebSocket(url,
+        self.webSocket = ConnectionManager(url,
             on_message = self._on_message,
 #             on_open = onopen,
             on_close = onclose)
