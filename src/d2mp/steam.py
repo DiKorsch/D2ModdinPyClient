@@ -6,9 +6,10 @@ Created on 01.06.2014
 from PyQt4.Qt import QDesktopServices, QUrl
 import psutil
 from d2mp import log
-
+from subprocess import call
 def command(cmd):
-    return QDesktopServices.openUrl(QUrl("steam://%s" %(cmd)))
+    return call(["steam", "steam://%s" %cmd])
+#    return QDesktopServices.openUrl(QUrl("steam://%s" %(cmd)))
 
 def launch_dota():
     log.DEBUG("Launching dota")
