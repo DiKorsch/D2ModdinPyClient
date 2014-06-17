@@ -64,7 +64,7 @@ class PreferencesWindow(BaseWindow):
         box.setLayout(QHBoxLayout(box))
         
         self.steam_path = QLineEdit(box)
-        self.steam_path.setEnabled(False)
+        self.steam_path.setReadOnly(True)
         self.steam_path.setText(Settings().get("steam_path"))
 
         change_btn = QPushButton("Change...", box)
@@ -80,7 +80,7 @@ class PreferencesWindow(BaseWindow):
         box.setLayout(QHBoxLayout(box))
         
         self.dota_path = QLineEdit(box)
-        self.dota_path.setEnabled(False)
+        self.dota_path.setReadOnly(True)
         self.dota_path.setText(Settings().get("dota_path"))
         
         change_btn = QPushButton("Change...", box)
