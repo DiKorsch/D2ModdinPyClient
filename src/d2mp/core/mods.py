@@ -3,8 +3,8 @@ Created on 01.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.QtCore import QSettings, pyqtSignal, QObject
-from os.path import join, exists, normpath, isdir, isfile, basename, expanduser
+from PyQt4.QtCore import pyqtSignal, QObject
+from os.path import join, exists, normpath, isdir, isfile, basename
 from d2mp.utils import log
 import os, re, sys
 from shutil import rmtree, copytree
@@ -81,11 +81,11 @@ class ModManager(object):
                 os.makedirs(p)
             
     def _steam_path(self):
-        return Settings().get("steam_path")
+        return Settings().get(Settings.STEAM_PATH_KEY)
     
     @only_if_steam_installed
     def _dota_path(self):
-        return Settings().get("dota_path")
+        return Settings().get(Settings.DOTA_PATH_KEY)
         
     @ensure_exist
     @only_if_dota_installed

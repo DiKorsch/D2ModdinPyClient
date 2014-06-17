@@ -5,7 +5,7 @@ Created on 16.06.2014
 '''
 from PyQt4.Qt import QObject, QSettings, pyqtSignal
 from d2mp.utils import log
-from os.path import exists, expanduser, isfile, join
+from os.path import exists, expanduser, isfile, join, normpath
 from d2mp import DOTA_EXE, STEAM_EXE
 import os
 import sys
@@ -22,11 +22,10 @@ def dota_path_default():
     steam = Settings().get(Settings.STEAM_PATH_KEY)
     dota_loc = [steam, "SteamApps", "common"]
     for p in ["dota 2", "dota 2 beta"]:
-        if exists("/".join(dota_loc + [p])): return "/".join(dota_loc + [p])
+        if exists("/".join(dota_loc + [p])): return normpath("/".join(dota_loc + [p]))
     
     Settings.dota_missing = True
     log.CRITICAL("No dota2 folder found! Please install it or adjust the settings!")
-#     Settings().signals.emit("No dota2 folder found! Please install it or adjust the settings!")
     return ""
 
 def steam_path_default():
@@ -37,8 +36,10 @@ def steam_path_default():
         path = expanduser("~/Library/Application Support/Steam")
     else:
         path = expanduser("~/.steam/steam")
-    if not exists(path): Settings.steam_missing = True
-    return path
+    if not exists(path): 
+        log.CRITICAL("No Steam folder found! Please install it or adjust the settings!")
+        Settings.steam_missing = True
+    return normpath(path)
 
 def only_if_steam_installed(func):
     def wrapper(*args, **kwargs):
@@ -79,11 +80,14 @@ class Settings(object):
             cls._defaults = {
                  Settings.DOTA_PATH_KEY: dota_path_default,
                  Settings.STEAM_PATH_KEY: steam_path_default,
-         
              }
         if clear_cache:
             cls._instance._cache = {}
         return cls._instance
+    
+    def reset(self):
+        for key, default in self._defaults.iteritems():
+            self.set(key, default())
 
     def get(self, setting):
         return str(self._settings.value(setting, self.default(setting)).toString())
