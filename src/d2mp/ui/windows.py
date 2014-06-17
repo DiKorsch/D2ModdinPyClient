@@ -3,9 +3,10 @@ Created on 16.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.Qt import QDialog, QFormLayout, QLayout, QWidget, Qt, QVBoxLayout,\
+from PyQt4.QtGui import QDialog, QFormLayout, QLayout, QWidget, QVBoxLayout,\
     QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QTextBrowser, QIcon,\
-    QFileSystemWatcher, QTimer, QTextOption, QTextEdit, QFileDialog, QMessageBox
+    QFileDialog, QTextEdit
+from PyQt4.QtCore import Qt, QFileSystemWatcher
 from d2mp import SETTINGS
 from d2mp.utils import log
 from os.path import abspath, exists

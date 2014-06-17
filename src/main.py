@@ -4,14 +4,15 @@ Created on 01.06.2014
 @author: Schleppi
 '''
 import sys
-sys.path.append("..")
+sys.path.append(".")
 
 from time import sleep
 from d2mp.ui import UIManager
 from d2mp.core.settings import Settings
 from d2mp import resources
-from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
-    QSystemTrayIcon, QMenu, QFileSystemWatcher, QCoreApplication
+from PyQt4.QtCore import QSharedMemory, QFileSystemWatcher, QTimer,\
+    QCoreApplication
+from PyQt4.QtGui import QApplication, QIcon, QSystemTrayIcon, QMenu
 from d2mp import SETTINGS
 from d2mp.utils import log
 from d2mp.core.mods import ModManager, write_to_file
@@ -139,15 +140,13 @@ if __name__ == '__main__':
 
     if app.is_running():
         log.DEBUG("[main] d2mp is already running!")
-        exit()
+    else:
+        QCoreApplication.setOrganizationName("D2Modd");
+        QCoreApplication.setOrganizationDomain("d2modd.in");
+        QCoreApplication.setApplicationName("D2ModdInClient");
+        
+        log.DEBUG("[main] ready to close")
+        r = app.exec_()  
+        log.DEBUG("[main] exiting with status %d" %r)
     
-    QCoreApplication.setOrganizationName("D2Modd");
-    QCoreApplication.setOrganizationDomain("d2modd.in");
-    QCoreApplication.setApplicationName("D2ModdInClient");
-    
-    log.DEBUG("[main] ready to close")
-    r = app.exec_()  
-    log.DEBUG("[main] exiting with status %d" %r)
-    
-    exit(r)
 

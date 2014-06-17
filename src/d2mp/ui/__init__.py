@@ -1,4 +1,5 @@
-from PyQt4.Qt import QObject, QMessageBox, QIcon
+from PyQt4.QtGui import QMessageBox, QIcon
+from PyQt4.QtCore import QObject
 
 from d2mp.ui.windows import PreferencesWindow
 from d2mp import SETTINGS
