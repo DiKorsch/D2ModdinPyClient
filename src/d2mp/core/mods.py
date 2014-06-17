@@ -51,7 +51,7 @@ class Mod(object):
 class ModManager(object):
     
     _instance = None
-    VERSION = "2.3.1"
+    VERSION = "2.3.2"
     
     
     class signals(QObject):
