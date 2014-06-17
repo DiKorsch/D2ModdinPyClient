@@ -6,7 +6,7 @@ Created on 01.06.2014
 from PyQt4.Qt import QSettings, pyqtSignal, QObject
 from os.path import join, exists, normpath, isdir, isfile, basename, expanduser
 from d2mp.utils import log
-import os, re
+import os, re, sys
 from shutil import rmtree, copytree
 from urllib import urlopen
 from zipfile import ZipFile
@@ -54,7 +54,7 @@ class Mod(object):
 class ModManager(object):
     
     _instance = None
-    VERSION = "2.3.1"
+    VERSION = "2.3.2"
     
     class signals(QObject):
         contact_server = pyqtSignal(object)
@@ -110,7 +110,10 @@ class ModManager(object):
     
     @only_if_steam_installed
     def steam_exe(self):
-        return join(ModManager()._steam_path(), STEAM_EXE)
+        if sys.platform != "darwin": #Mac steam program is in /Applications, not in the data directory
+            return join(ModManager()._steam_path(), STEAM_EXE)
+        else:
+            return "/Applications/Steam.app"
     
     @only_if_dota_installed
     def get_active_mod(self):

@@ -8,6 +8,7 @@ from d2mp.utils import log
 from os.path import exists, expanduser, isfile, join
 from d2mp import DOTA_EXE, STEAM_EXE
 import os
+import sys
 
 
 def is_dota_path_valid(path):
@@ -32,11 +33,12 @@ def steam_path_default():
     path = ""
     if os.name == "nt":
         path = str(QSettings("HKEY_CURRENT_USER\\Software\\Valve\\Steam", QSettings.NativeFormat).value("SteamPath", "").toString())
+    elif sys.platform == "darwin":
+        path = expanduser("~/Library/Application Support/Steam")
     else:
         path = expanduser("~/.steam/steam")
     if not exists(path): Settings.steam_missing = True
     return path
-
 
 def only_if_steam_installed(func):
     def wrapper(*args, **kwargs):
