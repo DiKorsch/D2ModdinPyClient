@@ -46,7 +46,7 @@ python main.py
 cd ~/d2modd/src
 pyinstaller windows.spec
 ```
-binaries are located in ~/d2modd/src/dist/d2mpclient/
+binaries are located in `~/d2modd/src/dist/d2mpclient/`
 
 ### Linux
 
