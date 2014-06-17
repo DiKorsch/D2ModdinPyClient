@@ -4,8 +4,14 @@ Created on 16.06.2014
 @author: Schleppi
 '''
 from PyQt4.Qt import QDialog, QFormLayout, QLayout, QWidget, Qt, QVBoxLayout,\
-    QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QTextBrowser, QIcon
+    QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QTextBrowser, QIcon,\
+    QFileSystemWatcher, QTimer, QTextOption, QTextEdit, QFileDialog, QMessageBox
 from d2mp import SETTINGS
+from d2mp.utils import log
+from os.path import abspath, exists
+import re
+from d2mp.core.settings import Settings, is_dota_path_valid, is_steam_path_valid
+
 
 
 class BaseDialog(QDialog):
@@ -34,16 +40,38 @@ class PreferencesWindow(BaseWindow):
         self._add_dota_box()
         self._add_additional_prefs()
         self._add_log_box()
+        
+        self._add_log_watcher()
+        Settings().signals.changed.connect(self.update_path)
+    
+    def _add_log_watcher(self):
+        self.watcher = QFileSystemWatcher()
+        self.watcher.addPath(abspath(log.file_name))
+        self.watcher.fileChanged.connect(self.update_log)
+    
+    def show(self):
+        self.update_log(abspath(log.file_name))
+        return super(PreferencesWindow, self).show()
+    
+    def update_path(self, setting_key, new_value):
+        if setting_key == "dota_path":
+            self.dota_path.setText(new_value)
+        elif setting_key == "steam_path":
+            self.steam_path.setText(new_value)
     
     def _add_steam_box(self):
         box = QGroupBox("Steam Location")
         box.setLayout(QHBoxLayout(box))
         
-        line_edit = QLineEdit(box)
-        line_edit.setEnabled(False)
-        
-        box.layout().addWidget(line_edit)
-        box.layout().addWidget(QPushButton("Change...", box))
+        self.steam_path = QLineEdit(box)
+        self.steam_path.setEnabled(False)
+        self.steam_path.setText(Settings().get("steam_path"))
+
+        change_btn = QPushButton("Change...", box)
+        change_btn.clicked.connect(self.change_steam_path)
+                
+        box.layout().addWidget(self.steam_path)
+        box.layout().addWidget(change_btn)
         
         self.layout().addWidget(box)
     
@@ -51,19 +79,40 @@ class PreferencesWindow(BaseWindow):
         box = QGroupBox("Dota Location")
         box.setLayout(QHBoxLayout(box))
         
-        line_edit = QLineEdit(box)
-        line_edit.setEnabled(False)
+        self.dota_path = QLineEdit(box)
+        self.dota_path.setEnabled(False)
+        self.dota_path.setText(Settings().get("dota_path"))
         
-        box.layout().addWidget(line_edit)
-        box.layout().addWidget(QPushButton("Change...", box))
+        change_btn = QPushButton("Change...", box)
+        change_btn.clicked.connect(self.change_dota_path)
+
+        box.layout().addWidget(self.dota_path)
+        box.layout().addWidget(change_btn)
         
         self.layout().addWidget(box)
+    
+    def change_steam_path(self):
+        self._change_path("steam_path", is_steam_path_valid)
+
+    def change_dota_path(self):
+        self._change_path("dota_path", is_dota_path_valid)
+    
+    def _change_path(self, path_key, is_valid):
+        new_folder = str(QFileDialog.getExistingDirectory(parent=self, caption="Select new path", directory=Settings().get(path_key)) )
+        if new_folder and exists(new_folder):
+            if is_valid(new_folder):
+                Settings().set(path_key, new_folder)
+            else:
+                from d2mp.ui import Message
+                Message.critical("Path is not valid", 
+                            "Path was not saved in settings.\nPlease select a directory with the right executable in it!")
     
     def _add_additional_prefs(self):
         box = QGroupBox("Additional Preferences")
         box.setLayout(QHBoxLayout(box))
                 
         log_btn = QPushButton("View Log", box)
+        log_btn.clicked.connect(self.open_log_file)
         reset_btn = QPushButton("Reset Settings", box)
                 
         box.layout().addWidget(log_btn)
@@ -75,11 +124,26 @@ class PreferencesWindow(BaseWindow):
         box = QGroupBox("Application log")
         box.setLayout(QHBoxLayout(box))
         
-        text_area = QTextBrowser(box)
+        self.log_area = QTextBrowser(box)
+        self.log_area.setLineWrapMode(QTextEdit.NoWrap)
         
-        box.layout().addWidget(text_area)
+        box.layout().addWidget(self.log_area)
         self.layout().addWidget(box)
-        
+    
+    def open_log_file(self):
+        # TODO: open file in standard editor
+        log.INFO("TODO: open file in standard editor")
+        print abspath(log.file_name)
+    
+    def update_log(self, log_file):
+        content = ""
+        for line in open(log_file):
+            if "========= new programm start =========" in line:
+                content = ""
+            else:
+                content += line[37:]
+        if content:
+            self.log_area.setText(content)
         
     
     

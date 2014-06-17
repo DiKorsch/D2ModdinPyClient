@@ -12,12 +12,14 @@ from urllib import urlopen
 from zipfile import ZipFile
 from StringIO import StringIO
 from d2mp import STEAM_EXE
+from d2mp.core.settings import Settings, only_if_dota_installed,\
+    only_if_steam_installed
 
 
 def ensure_exist(func):
     def wrapper(*args, **kw):
         res = func(*args, **kw)
-        if not exists(res): os.makedirs(res)
+        if res is not None and not exists(res): os.makedirs(res)
         return res
     return wrapper
 
@@ -40,6 +42,7 @@ def write_to_file(file_path, content):
 def unzip_from_stream(url, dest_dir):
     ZipFile(StringIO(urlopen(url).read())).extractall(dest_dir)
 
+
 class Mod(object):
     def __init__(self, name, version):
         self.name = name
@@ -53,10 +56,10 @@ class ModManager(object):
     _instance = None
     VERSION = "2.3.1"
     
-    
     class signals(QObject):
         contact_server = pyqtSignal(object)
         message = pyqtSignal(str)
+        error = pyqtSignal(str)
     
     def __new__(cls, clear_cache = False):
         if not cls._instance:
@@ -71,52 +74,53 @@ class ModManager(object):
     def __init__(self):
         super(ModManager, self).__init__()
     
+    @only_if_dota_installed
     def _create_dirs(self):
         for p in [self._d2mp_path(), self._mod_path()]:
-            if not isdir(p): os.makedirs(p)
+            if not isdir(p): 
+                os.makedirs(p)
             
     def _steam_path(self):
-        if self._cache.get("steam_path") is None:
-            if os.name == "nt":
-                self._cache["steam_path"] = str(QSettings("HKEY_CURRENT_USER\\Software\\Valve\\Steam", QSettings.NativeFormat).value("SteamPath", "").toString())
-            else:
-                self._cache["steam_path"] = expanduser("~/.steam/steam")
-
-        return self._cache.get("steam_path")
+        return Settings().get("steam_path")
     
+    @only_if_steam_installed
     def _dota_path(self):
-        dota_loc = [self._steam_path(), "SteamApps", "common"]
-        for p in ["dota 2", "dota 2 beta"]:
-            if exists("/".join(dota_loc + [p])): return "/".join(dota_loc + [p])
-        
-        log.CRITICAL("No dota2 folder found! Please install it!")
-        raise Exception("No dota2 folder found! Please install it!")
+        return Settings().get("dota_path")
         
     @ensure_exist
+    @only_if_dota_installed
     def _mod_path(self):
         return join(self._addons_path(), "d2moddin")
     
     @ensure_exist    
+    @only_if_dota_installed
     def _d2mp_path(self):
         return join(self._dota_path(), normpath("dota/d2moddin"))
     
     @ensure_exist
+    @only_if_dota_installed
     def _addons_path(self):
         return join(self._dota_path(), normpath("dota/addons"))
 
+    
+    @only_if_dota_installed
     def _mod_name_file(self):
         return join(self._mod_path(), "modname.txt")
     
+    
+    @only_if_steam_installed
     def steam_exe(self):
         return join(ModManager()._steam_path(), STEAM_EXE)
     
+    @only_if_dota_installed
     def get_active_mod(self):
         info_file = self._mod_name_file()
         if not isfile(info_file): return None
         name = open(info_file).read()
         log.DEBUG("Current active mod: %s" %name)
         return name
-
+    
+    @only_if_dota_installed
     def install_mod(self, mod_name, version, url):
         log.INFO("Server requested that we install mod " + mod_name + " from download " + url)
 
@@ -134,6 +138,7 @@ class ModManager(object):
 #     def uninstall_d2mp(self):
 #         pass
 
+    @only_if_dota_installed
     def steam_ids(self):
         if not self._cache.get('steam_ids'):
             content = get_file_content(join(self._steam_path(), "config/config.vdf"))
@@ -141,6 +146,7 @@ class ModManager(object):
         
         return self._cache.get('steam_ids', [])
     
+    @only_if_dota_installed
     def delete_mod(self, mod_name, version = None):
         mod_path = join(self._d2mp_path(), mod_name)
         if not exists(mod_path): 
@@ -151,12 +157,14 @@ class ModManager(object):
         self._remove_mod(mod_name, version)
         self.signals.contact_server.emit({"msg": "ondeleted", "Mod": Mod(mod_name, version or "0.0.1").as_dict()})
     
+    @only_if_dota_installed
     def delete_mods(self):
         rmtree(self._d2mp_path())
         rmtree(self._mod_path())
         log.DEBUG("deleted all present mods")
         self._cache["mods"] = []
     
+    @only_if_dota_installed
     def set_mod(self, mod_name):
         active_mod = self.get_active_mod()
         if not(active_mod is None or active_mod != mod_name): return
@@ -208,20 +216,24 @@ class ModManager(object):
         
         log.ERROR("mod attemted to delete does not exist: %s v%s!" %(mod_name, version))            
         
+    @only_if_dota_installed
     def _mods(self):
         if not self._cache.get('mods'):
             p = self._d2mp_path()
             for addon_dir in [join(p, f) for f in os.listdir(p)]:
                 if isdir(addon_dir):
                     self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
-        return self._cache.get('mods', [])
+        return self._cache.get('mods')
     
+    @only_if_dota_installed
     def mod_names(self):
         return [mod.name for mod in self._mods()]
     
+    @only_if_dota_installed
     def mods_as_json(self):
         return [mod.as_dict() for mod in self._mods()]
 
+    @only_if_dota_installed
     def mod_names_as_string(self):
         mod_names = self.mod_names()
         if mod_names:
@@ -230,14 +242,17 @@ class ModManager(object):
             msg = "You currently have no mods installed"
         return msg
     
+    @only_if_dota_installed
     def dota_info_file(self):
         return join(self._dota_path(), normpath("dota/gameinfo.txt"))
 
+    @only_if_dota_installed
     def is_modded(self):
         content = get_file_content(self.dota_info_file())
         regex = "(platform\s+Game.+d2moddin)"
         return re.search(regex, content, flags = re.DOTALL) is not None
     
+    @only_if_dota_installed
     def _modify_game_info(self, regex, replacement, should_be_modded):
 
         if not exists(self.dota_info_file()):
@@ -261,12 +276,14 @@ class ModManager(object):
         new_content = re.sub(regex, replacement, content, flags=re.DOTALL)
         write_to_file(self.dota_info_file(), new_content)
     
+    @only_if_dota_installed
     def mod_game_info(self):
         if self.is_modded(): return
         regex = "(Game\s+platform)(.+?})"
         replacement = "Game        platform\n      Game        |gameinfo_path|addons\\d2moddin\n    }"
         return self._modify_game_info(regex, replacement, should_be_modded=False)
         
+    @only_if_dota_installed
     def unmod_game_info(self):
         if not self.is_modded(): return
         regex = "(platform\s+Game.+d2moddin)"

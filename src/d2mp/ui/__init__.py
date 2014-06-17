@@ -1,6 +1,7 @@
-from PyQt4.Qt import QObject
+from PyQt4.Qt import QObject, QMessageBox, QIcon
 
 from d2mp.ui.windows import PreferencesWindow
+from d2mp import SETTINGS
 
 
 class UIManager(object):
@@ -37,3 +38,21 @@ class UIManager(object):
     
     def open_preferences(self):
         self._open("preferences")
+
+
+
+class Message(object):
+    
+    class messageCls(QMessageBox):
+        def __init__(self, *args, **kwargs):
+            super(Message.messageCls, self).__init__(*args, **kwargs)
+            self.setWindowIcon(QIcon(SETTINGS["icon"]))
+    
+    @classmethod
+    def critical(cls, title, message):
+        return Message.messageCls(QMessageBox.Critical, title, message).exec_()
+    
+    
+    @classmethod
+    def info(cls, title, message):
+        return Message.messageCls(QMessageBox.Information, title, message).exec_()

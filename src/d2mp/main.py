@@ -8,9 +8,11 @@ from d2mp import resources
 import sys
 from time import sleep
 from d2mp.ui import UIManager
+from d2mp.core.settings import Settings
+import traceback
 sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
-    QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
+    QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer, QCoreApplication
 from d2mp import SETTINGS
 from d2mp.utils import log
 from d2mp.core.mods import ModManager, write_to_file
@@ -36,20 +38,23 @@ class SingleApplication(QApplication):
     
     def exec_(self):
         self._create_tray_icon()
-        try:
-            self._create_mod_manager()
-            self._start_file_watcher()
-            self._create_socket()
+#         try:
+        self._create_mod_manager()
+        self._start_file_watcher()
+        self._create_socket()
+        Settings()
             
-        except Exception as e:
-            self.show_message("Critical Error", "%s\nClient will shutdown in 10 seconds" %(str(e)), QSystemTrayIcon.Critical)
-            QTimer.singleShot(10 * 1000, self.exit)
+#         except Exception as e:
+#             print e
+#             self.show_message("Critical Error", "%s\nClient will shutdown in 10 seconds" %(str(e)), QSystemTrayIcon.Critical)
+#             QTimer.singleShot(10 * 1000, self.exit)
         
         return super(SingleApplication, self).exec_()
     def _create_mod_manager(self):
         self.manager = ModManager()
         self.manager.mod_game_info()
         self.manager.signals.message.connect(self.show_message_from_mod_manager)
+        self.manager.signals.error.connect(self.show_error_from_mod_manager)
     
     def _create_socket(self):    
         self.socket = ConnectionManager()
@@ -136,6 +141,10 @@ if __name__ == '__main__':
     if app.is_running():
         log.DEBUG("[main] d2mp is already running!")
         exit()
+    
+    QCoreApplication.setOrganizationName("D2Modd");
+    QCoreApplication.setOrganizationDomain("d2modd.in");
+    QCoreApplication.setApplicationName("D2ModdInClient");
     
     log.DEBUG("[main] ready to close")
     r = app.exec_()  

@@ -15,7 +15,7 @@ from d2mp.utils.steam import launch_dota, connect_dota, spectate
 
 class ConnectionManager(QObject):
     
-    offline = False
+    offline = True
 
     server = "ddp2.d2modd.in"
     port = 4502
