@@ -19,4 +19,4 @@ coll = COLLECT(exe,
                a.datas,
                strip=None,
                upx=True,
-               name='main')
+               name='d2mpclient')

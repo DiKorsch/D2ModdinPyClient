@@ -6,15 +6,13 @@ Created on 01.06.2014
 import sys
 sys.path.append(".")
 
-# for py2exe
-import PyQt4.QtGui, PyQt4.QtCore
-
-
 from time import sleep
 from d2mp.ui import UIManager
 from d2mp import resources
-from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
-    QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
+
+from PyQt4.QtCore import QSharedMemory, QFileSystemWatcher, QTimer
+from PyQt4.QtGui import QApplication, QIcon, QSystemTrayIcon, QMenu
+
 from d2mp import SETTINGS
 from d2mp.utils import log
 from d2mp.core.mods import ModManager, write_to_file

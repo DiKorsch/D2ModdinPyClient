@@ -3,8 +3,9 @@ Created on 16.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.Qt import QDialog, QFormLayout, QLayout, QWidget, Qt, QVBoxLayout,\
+from PyQt4.QtGui import QDialog, QFormLayout, QLayout, QWidget, QVBoxLayout,\
     QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QTextBrowser, QIcon
+from PyQt4.QtCore import Qt
 from d2mp import SETTINGS
 
 

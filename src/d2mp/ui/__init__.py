@@ -1,4 +1,4 @@
-from PyQt4.Qt import QObject
+from PyQt4.QtCore import QObject
 
 from d2mp.ui.windows import PreferencesWindow
 

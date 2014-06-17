@@ -3,7 +3,7 @@ Created on 04.06.2014
 
 @author: Schleppi
 '''
-from PyQt4.Qt import pyqtSignal, QObject
+from PyQt4.QtCore import pyqtSignal, QObject
 from d2mp.core.mods import ModManager
 
 from time import sleep
