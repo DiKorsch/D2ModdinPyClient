@@ -3,12 +3,12 @@ Created on 01.06.2014
 
 @author: Schleppi
 '''
-
-from d2mp import resources
 import sys
+sys.path.append("..")
+
 from time import sleep
 from d2mp.ui import UIManager
-sys.path.append("..")
+from d2mp import resources
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
 from d2mp import SETTINGS
