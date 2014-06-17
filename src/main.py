@@ -4,7 +4,11 @@ Created on 01.06.2014
 @author: Schleppi
 '''
 import sys
-sys.path.append("..")
+sys.path.append(".")
+
+# for py2exe
+import PyQt4.QtGui, PyQt4.QtCore
+
 
 from time import sleep
 from d2mp.ui import UIManager
@@ -135,11 +139,8 @@ if __name__ == '__main__':
 
     if app.is_running():
         log.DEBUG("[main] d2mp is already running!")
-        exit()
-    
-    log.DEBUG("[main] ready to close")
-    r = app.exec_()  
-    log.DEBUG("[main] exiting with status %d" %r)
-    
-    exit(r)
+    else:
+        log.DEBUG("[main] ready to close")
+        r = app.exec_()  
+        log.DEBUG("[main] exiting with status %d" %r)
 
