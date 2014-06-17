@@ -1,3 +1,4 @@
 psutil
 websocket-client
 mock
+pyinstaller
