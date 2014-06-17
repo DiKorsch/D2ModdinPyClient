@@ -1,7 +1,14 @@
-import os
+import os, sys
 
-STEAM_EXE = "steam.exe" if os.name == "nt" else "steam"
-DOTA_EXE = "dota.exe" if os.name == "nt" else "dota"
+if os.name == "nt":
+    STEAM_EXE = "steam.exe"
+    DOTA_EXE = "dota.exe"
+elif sys.platform == "darwin":
+    STEAM_EXE = "Steam.app"
+    DOTA_EXE = "Dota.app"
+else:
+    STEAM_EXE = "steam"
+    DOTA_EXE = "dota"
 
 SETTINGS = {
     'icon': ':/icon',

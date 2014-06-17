@@ -6,11 +6,12 @@ Created on 01.06.2014
 from PyQt4.Qt import QSettings, pyqtSignal, QObject
 from os.path import join, exists, normpath, isdir, isfile, basename, expanduser
 from d2mp.utils import log
-import os, re
+import os, re, sys
 from shutil import rmtree, copytree
 from urllib import urlopen
 from zipfile import ZipFile
 from StringIO import StringIO
+from d2mp import STEAM_EXE
 
 
 def ensure_exist(func):
@@ -78,6 +79,8 @@ class ModManager(object):
         if self._cache.get("steam_path") is None:
             if os.name == "nt":
                 self._cache["steam_path"] = str(QSettings("HKEY_CURRENT_USER\\Software\\Valve\\Steam", QSettings.NativeFormat).value("SteamPath", "").toString())
+            elif sys.platform == "darwin":
+                self._cache["steam_path"] = expanduser("~/Library/Application Support/Steam")
             else:
                 self._cache["steam_path"] = expanduser("~/.steam/steam")
 
@@ -105,6 +108,12 @@ class ModManager(object):
 
     def _mod_name_file(self):
         return join(self._mod_path(), "modname.txt")
+    
+    def steam_exe(self):
+        if sys.platform != "darwin": #Mac steam program is in /Applications, not in the data directory
+            return join(ModManager()._steam_path(), STEAM_EXE)
+        else:
+            return "/Applications/Steam.app"
     
     def get_active_mod(self):
         info_file = self._mod_name_file()

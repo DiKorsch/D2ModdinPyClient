@@ -8,7 +8,6 @@ from d2mp import resources
 import sys
 from time import sleep
 from d2mp.ui import UIManager
-from d2mp.ui.windows import PreferencesWindow
 sys.path.append("..")
 from PyQt4.Qt import QApplication, QSharedMemory, QIcon,\
     QSystemTrayIcon, QMenu, QFileSystemWatcher, QTimer
@@ -90,6 +89,7 @@ class SingleApplication(QApplication):
         traymenu.addAction("Preferences", UIManager().open_preferences)
         traymenu.addAction("Show mod list", self.show_mod_list)
         traymenu.addSeparator()
+
         traymenu.addAction("Exit", self.exit)
     
         self.tray.setContextMenu(traymenu)

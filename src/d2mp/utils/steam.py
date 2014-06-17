@@ -3,12 +3,16 @@ Created on 01.06.2014
 
 @author: Schleppi
 '''
-import psutil
+import psutil, sys
 from d2mp.utils import log
 from subprocess import call
+from d2mp.core.mods import ModManager
 
 def command(cmd):
-    return call(["steam", "steam://%s" %cmd])
+    if sys.platform == "darwin":
+        return call(["open", ModManager().steam_exe(), "steam://%s" %cmd])
+    else:
+        return call([ModManager().steam_exe(), "steam://%s" %cmd])
 #    return QDesktopServices.openUrl(QUrl("steam://%s" %(cmd)))
 
 def launch_dota():
