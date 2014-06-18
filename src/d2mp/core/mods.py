@@ -54,7 +54,7 @@ class Mod(object):
 class ModManager(object):
     
     _instance = None
-    VERSION = "2.3.2"
+    VERSION = "2.3.6"
     
     class signals(QObject):
         contact_server = pyqtSignal(object)
@@ -226,6 +226,8 @@ class ModManager(object):
             for addon_dir in [join(p, f) for f in os.listdir(p)]:
                 if isdir(addon_dir):
                     self._update_mod(basename(addon_dir), self._extract_mod_version(addon_dir)) 
+        if not self._cache.get('mods'): #if there's still nothing in the folder, program crashes
+            return []
         return self._cache.get('mods')
     
     @only_if_dota_installed
