@@ -12,12 +12,11 @@ from d2mp.utils import log
 from os.path import join
 from d2mp.utils.steam import launch_dota, connect_dota, spectate
 
-
 class ConnectionManager(QObject):
     
     offline = False
 
-    server = "ddp2.d2modd.in"
+    server = "net1.d2modd.in"
     port = 4502
     
     address = "ClientController"
@@ -154,7 +153,7 @@ class ConnectionManager(QObject):
             "msg": "init",
             "SteamIDs": man.steam_ids(),
             "Mods": man.mods_as_json(),
-            "Version": man.VERSION, 
+            "Version": man.get_version(),
         }
     
     def send(self, payload):

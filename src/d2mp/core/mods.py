@@ -54,8 +54,16 @@ class Mod(object):
 class ModManager(object):
     
     _instance = None
-    VERSION = "2.3.6"
+    VERSION = None#"2.3.6"
     
+    def get_version(self):
+      if ModManager.VERSION is None:
+        import urllib2
+        response = urllib2.urlopen("http://net1.d2modd.in/clientver")
+        ModManager.VERSION = re.findall("version:(\\d+\\.\\d+\\.\\d+)|", response.read())[0]
+
+      return ModManager.VERSION
+
     class signals(QObject):
         contact_server = pyqtSignal(object)
         message = pyqtSignal(str)

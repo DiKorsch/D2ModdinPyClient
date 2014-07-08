@@ -152,9 +152,12 @@ class XSocketsClient(object):
     def start(self, url, onopen, onclose):
         self.webSocket = ConnectionManager(url,
             on_message = self._on_message,
-#             on_open = onopen,
+            on_error = self.print_error,
             on_close = onclose)
         self.webSocket.run_forever()
+
+    def print_error(self, *args, **kwargs):
+      print args, kwargs
 
     def __del__(self, *args):
         if self.webSocket is not None:
