@@ -118,10 +118,12 @@ class ModManager(object):
     
     @only_if_steam_installed
     def steam_exe(self):
-        if sys.platform != "darwin": #Mac steam program is in /Applications, not in the data directory
-            return join(ModManager()._steam_path(), STEAM_EXE)
-        else:
+        if sys.platform == "darwin": #Mac steam program is in /Applications, not in the data directory
             return "/Applications/Steam.app"
+        elif sys.platform.startswith("linux"):
+            return STEAM_EXE
+        else:
+            return join(ModManager()._steam_path(), STEAM_EXE)
     
     @only_if_dota_installed
     def get_active_mod(self):
