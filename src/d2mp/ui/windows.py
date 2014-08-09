@@ -133,7 +133,7 @@ class PreferencesWindow(BaseWindow):
     
     def open_log_file(self):
         log.INFO("TODO: open file in standard editor")
-        print abspath(log.file_name)
+        print(abspath(log.file_name))
     
     def update_log(self, log_file):
         content = ""

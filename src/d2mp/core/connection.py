@@ -92,7 +92,7 @@ class ConnectionManager(QObject):
         self.error.emit("Your client version is wrong!\nPlease install the newest version!")
     
     def _command_uninstall(self, content):
-        print content
+        print(content)
     
     def _command_launch(self, content):
         launch_dota()

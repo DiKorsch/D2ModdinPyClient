@@ -48,7 +48,7 @@ def steam_path_default():
 def only_if_steam_installed(func):
     def wrapper(*args, **kwargs):
         if Settings.steam_missing: 
-            print "called %s despite of missing steam" %(str(func))
+            print("called %s despite of missing steam" %(str(func)))
             return
         return func(*args, **kwargs)
     return wrapper
@@ -56,7 +56,7 @@ def only_if_steam_installed(func):
 def only_if_dota_installed(func):
     def wrapper(*args, **kwargs):
         if Settings.dota_missing: 
-            print "called %s despite of missing dota" %(str(func))
+            print("called %s despite of missing dota" %(str(func)))
             return
         return func(*args, **kwargs)
     return wrapper

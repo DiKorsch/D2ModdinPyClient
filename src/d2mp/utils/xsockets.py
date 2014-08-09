@@ -157,7 +157,7 @@ class XSocketsClient(object):
         self.webSocket.run_forever()
 
     def print_error(self, *args, **kwargs):
-      print args, kwargs
+      print(args, kwargs)
 
     def __del__(self, *args):
         if self.webSocket is not None:
