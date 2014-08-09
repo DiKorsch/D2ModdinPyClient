@@ -51,6 +51,8 @@ class ConnectionManager(QObject):
             "launchdota":       self._command_launch,
             "connectdota":      self._command_connect,
             "connectspectate":  self._command_spectate,
+
+            "notifymessage":    self._command_notifymessage,
         } 
         return soc
 
@@ -63,6 +65,9 @@ class ConnectionManager(QObject):
     def _wrong_content(self, content):
         log.CRITICAL("haven't expect the content: %s!" %(content))
     
+    def _command_notifymessage(self, content):
+        self.message.emit(content["message"]["message"])
+
     def _command_not_found(self, content):
         log.CRITICAL("could not found the right command: %s!" %(content.get("msg")))
     

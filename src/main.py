@@ -38,16 +38,10 @@ class SingleApplication(QApplication):
     
     def exec_(self):
         self._create_tray_icon()
-#         try:
         self._create_mod_manager()
         self._start_file_watcher()
         self._create_socket()
         Settings()
-            
-#         except Exception as e:
-#             print e
-#             self.show_message("Critical Error", "%s\nClient will shutdown in 10 seconds" %(str(e)), QSystemTrayIcon.Critical)
-#             QTimer.singleShot(10 * 1000, self.exit)
         
         return super(SingleApplication, self).exec_()
     def _create_mod_manager(self):

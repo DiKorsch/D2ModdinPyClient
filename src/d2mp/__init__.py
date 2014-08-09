@@ -8,7 +8,7 @@ elif sys.platform == "darwin":
     DOTA_EXE = "Dota.app"
 else:
     STEAM_EXE = "steam"
-    DOTA_EXE = "dota"
+    DOTA_EXE = "dota_linux"
 
 SETTINGS = {
     'icon': ':/icon',

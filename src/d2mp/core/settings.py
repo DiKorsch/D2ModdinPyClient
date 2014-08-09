@@ -7,15 +7,19 @@ from PyQt4.Qt import QObject, QSettings, pyqtSignal
 from d2mp.utils import log
 from os.path import exists, expanduser, isfile, join, normpath
 from d2mp import DOTA_EXE, STEAM_EXE
-import os
-import sys
+import os, sys
 
 
 def is_dota_path_valid(path):
     return isfile(join(path, DOTA_EXE))
 
 def is_steam_path_valid(path):
-    return isfile(join(path, STEAM_EXE))
+    if os.name == "nt":
+        return isfile(join(path, STEAM_EXE))
+    elif sys.platform == "darwin":
+        return exists(path) # TODO: check whether its a valid steam path
+    else:
+        return isfile(join(path, "steam.sh"))
 
 def dota_path_default():
     
