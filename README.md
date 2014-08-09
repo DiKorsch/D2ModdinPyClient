@@ -27,13 +27,17 @@ pip install -r requirements.txt
 
 ### Run tests
 ```
-cd ~/d2modd/tests
+cd ~/d2modd
+source bin/activate
+cd tests
 python runner.py
 ```
 
 ### Run client
 ```
-cd ~/d2modd/src
+cd ~/d2modd
+source bin/activate
+cd src
 python main.py
 ```
 
